@@ -1,0 +1,19 @@
+name: Hmarket
+version: '${version}'
+main: cat.nyaa.hmarket.Hmarket
+api-version: 1.18
+prefix: Hmarket
+load: POSTWORLD
+depend:
+  - Vault
+  - NyaaCore
+  - ProtocolLib
+  - aolib
+libraries:
+  - com.zaxxer:HikariCP:5.0.1
+commands:
+  hmarket:
+    aliases:
+      - "h"
+    usage: "/h <args>"
+    description: ""

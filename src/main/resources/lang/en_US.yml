@@ -1,0 +1,11 @@
+command:
+  shop:
+    invalidArgs: "invalid arguments"
+    isnotSign: "the block is not a Sign"
+    isShop: "the sign is already a SignShop"
+    isnotEmptySign: "the sign is not empty"
+    createSuccessful: "create signshop successful"
+
+shop:
+  next: "next page"
+  last: "last page"
