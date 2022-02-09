@@ -6,6 +6,7 @@ import cat.nyaa.aolib.aoui.item.IUiItem;
 import cat.nyaa.aolib.aoui.item.PlayerInventoryItem;
 import cat.nyaa.aolib.network.data.DataClickType;
 import cat.nyaa.hmarket.Hmarket;
+import cat.nyaa.hmarket.I18n;
 import cat.nyaa.hmarket.gui.item.ButtonUIItem;
 import cat.nyaa.hmarket.gui.item.UiShopItem;
 import cat.nyaa.hmarket.shopitem.ItemCache;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 public class ShopUI implements IBaseUI {
     private static final int WINDOW_ID = 112; // <127
     public static final int PAGE_SIZE = 45;
+    private static final int PLAYER_INVENTORY = 53;
     protected int page = 1;
     List<IUiItem> uiItemList = new ArrayList<>();
     protected List<ItemCache> goods = null;
@@ -54,6 +56,24 @@ public class ShopUI implements IBaseUI {
 
     }
 
+    protected boolean check(int slotNum, DataClickType clickType, Player player) {
+        if (!clickType.equals(DataClickType.PICKUP)) {
+            return true;
+        }
+        // Player Inventory
+        if (slotNum > PLAYER_INVENTORY) {
+            return true;
+        }
+        if (uiItemList.get(slotNum) == EmptyUIItem.EMPTY_UI_ITEM) {
+            return true;
+        }
+        if (uiItemList.get(slotNum) instanceof ButtonUIItem) {
+            ((ButtonUIItem) uiItemList.get(slotNum)).onClick(clickType, player);
+            return true;
+        }
+        return false;
+    }
+
     public void fillEmpty(int cols) {
         for (int j = 0; j < 6; ++j) {
             for (int k = 0; k < cols; ++k) {
@@ -69,9 +89,19 @@ public class ShopUI implements IBaseUI {
             if (goodsIndex >= goods.size()) {
                 break;
             }
-            uiItemList.set(i, new UiShopItem(goods.get(goodsIndex).nbt));
+
+            var item = goods.get(goodsIndex).nbt.clone();
+            var prize = goods.get(goodsIndex).price;
+            var meta = item.getItemMeta().clone();
+            var lores = new ArrayList<String>();
+            lores.add(I18n.format("shop.itemPrize", prize, 0.01));
+            meta.setLore(lores);
+            item.setItemMeta(meta);
+
+            uiItemList.set(i, new UiShopItem(item));
         }
         if (Hmarket.getUiManager() == null) return;
+
         Hmarket.getUiManager().broadcastChanges(this);
     }
 

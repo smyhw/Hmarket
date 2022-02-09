@@ -14,10 +14,10 @@ import cat.nyaa.nyaacore.cmdreceiver.CommandReceiver;
 import cat.nyaa.nyaacore.cmdreceiver.SubCommand;
 import cat.nyaa.nyaacore.utils.HexColorUtils;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Iterators;
-import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
@@ -71,23 +71,9 @@ public class SignShopHandle extends CommandReceiver {
     public void onBuy(CommandSender sender, Arguments args) {
         var player = asPlayer(sender);
         var block = player.getTargetBlockExact(7);
-
-        if (block == null || !(block.getState() instanceof Sign) || !SignShopManager.getInstance().isSignShop(block.getLocation())) {
-            new Message("").send(sender);
-            return;
-        }
-        var shop = SignShopManager.getInstance().getSignShopByLocation(block.getLocation());
-        if (!shop.getOwner().equals(player.getUniqueId()) || shop.getType() != SignShopType.BUY) {
-            new Message("").send(sender);
-            return;
-        }
         var handItem = player.getInventory().getItemInMainHand().clone();
 
-
-        if (handItem.getType().isAir()) {
-            new Message("").send(sender);
-            return;
-        }
+        if (checkValid(sender, player, block, handItem, SignShopType.BUY)) return;
 
         var price = args.nextDouble();
         var shopItem = new ShopItem(player.getUniqueId(), price, handItem, ShopItemType.SIGNSHOP_BUY);
@@ -95,17 +81,43 @@ public class SignShopHandle extends CommandReceiver {
 
         //TODO: limit
 
-
-        new Message("").send(sender);
+        new Message("").append(I18n.format("command.shop.buy.success", handItem.getAmount(), price), handItem).send(player);
     }
 
     @SubCommand(value = "sell", permission = "hmarket.command.shop.sell")
     public void sell(CommandSender sender, Arguments args) {
         var player = asPlayer(sender);
+        var block = player.getTargetBlockExact(7);
+        var handItem = player.getInventory().getItemInMainHand().clone();
 
-        player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
+        if (checkValid(sender, player, block, handItem, SignShopType.SELL)) return;
 
+        var price = args.nextDouble();
+        var shopItem = new ShopItem(player.getUniqueId(), price, handItem, ShopItemType.SIGNSHOP_SELL);
+        ShopItemManager.getInstance().addShopItem(shopItem);
+        player.getInventory().getItemInMainHand().setAmount(0);
 
+        //TODO: limit
+
+        new Message("").append(I18n.format("command.shop.sell.success", handItem.getAmount(), price), handItem).send(player);
+    }
+
+    private boolean checkValid(CommandSender sender, Player player, Block block, ItemStack handItem, SignShopType type) {
+        if (block == null || !(block.getState() instanceof Sign) || !SignShopManager.getInstance().isSignShop(block.getLocation())) {
+            I18n.send(sender, "command.shop.invalidTarget");
+            return true;
+        }
+        var shop = SignShopManager.getInstance().getSignShopByLocation(block.getLocation());
+        if (!shop.getOwner().equals(player.getUniqueId()) || shop.getType() != type) {
+            I18n.send(sender, "command.shop.invalidTarget");
+            return true;
+        }
+
+        if (handItem.getType().isAir()) {
+            I18n.send(sender, "command.shop.isAir");
+            return true;
+        }
+        return false;
     }
 
     @Override

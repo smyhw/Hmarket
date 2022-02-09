@@ -67,4 +67,20 @@ public class LocationsTables {
             }
         }
     }
+
+    public static void removeLocation(LocationModel locationModel) throws SQLException {
+        if (DataSourceManager.getInstance() == null) {
+            return;
+        }
+        try (var conn = DataSourceManager.getInstance().getConnection()){
+            try (var ps = conn.prepareStatement("DELETE FROM locations WHERE (owner = ? AND x = ? AND y = ? AND z = ? AND world = ?) ")){
+                ps.setObject(1, locationModel.owner);
+                ps.setObject(2, locationModel.x);
+                ps.setObject(3, locationModel.y);
+                ps.setObject(4, locationModel.z);
+                ps.setObject(5, locationModel.world);
+                ps.executeUpdate();
+            }
+        }
+    }
 }
