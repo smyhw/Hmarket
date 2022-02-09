@@ -41,6 +41,15 @@ public class SignShopManager {
         }
     }
 
+    public void removeSignShop(SignShop shop) {
+        this.locationSignShopMap.remove(shop.location);
+        try {
+            LocationsTables.removeLocation(shop.toModel());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public boolean isSignShop(Location location) {
         return locationSignShopMap.get(location) != null;
     }

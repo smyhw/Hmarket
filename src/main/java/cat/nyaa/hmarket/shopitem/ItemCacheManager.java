@@ -11,7 +11,6 @@ import java.sql.SQLException;
 import java.util.*;
 
 public class ItemCacheManager {
-    private Plugin hmarket;
 
     private static final class InstanceHolder {
         private static final ItemCacheManager instance = new ItemCacheManager();
@@ -26,8 +25,7 @@ public class ItemCacheManager {
 
     private Map<UUID, List<ItemCache>> itemCache = new HashMap<>();
 
-    public void init(Plugin hmarket) {
-        this.hmarket = hmarket;
+    public void init() {
 
         try {
             var items = ItemTables.selectAll();
@@ -62,11 +60,5 @@ public class ItemCacheManager {
             t.add(shopItem.toCache());
             itemCache.put(shopItem.getOwner(), t);
         }
-        Bukkit.getScheduler().runTaskAsynchronously(hmarket, new Runnable() {
-            @Override
-            public void run() {
-                ShopItemManager.getInstance().addShopItem(shopItem);
-            }
-        });
     }
 }
