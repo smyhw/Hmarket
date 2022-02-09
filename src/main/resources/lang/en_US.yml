@@ -5,7 +5,19 @@ command:
     isShop: "the sign is already a SignShop"
     isnotEmptySign: "the sign is not empty"
     createSuccessful: "create signshop successful"
+    invalidTarget: "invalid target"
+    isAir: "you should hand something."
+    buy:
+      success: "add {itemName} &r* %d to your buy shop successfully. price %.2f"
+    sell:
+      success: "add {itemName} &r* {amount} to your sell shop successfully. price %.2f"
 
 shop:
   next: "next page"
   last: "last page"
+  itemPrize: "prize %.2f  (Tax rate %.2f %%)"
+  noEnoughItem: "not enough "
+  destroy: "SignShop has been destroyed"
+  transaction:
+    buy: "sold {itemName} &r* {amount} to %s successfully. receive %.2f"
+    sell: "buy {itemName} &r* {amount} from %s successfully. cost %.2f"
