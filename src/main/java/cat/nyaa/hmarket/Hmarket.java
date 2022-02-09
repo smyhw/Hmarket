@@ -44,7 +44,7 @@ public final class Hmarket extends JavaPlugin {
         var signShopManager = SignShopManager.getInstance();
         signShopManager.loadSignShopFromDb();
         var itemCacheManager = ItemCacheManager.getInstance();
-        itemCacheManager.init(this);
+        ShopItemManager.init(this);
     }
 
     @Override

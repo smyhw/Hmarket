@@ -10,7 +10,7 @@ public class HmarketConfig extends PluginConfigure {
     public String DBFile = "Hmarket.db";
 
     @Serializable
-    public String language = "en-US";
+    public String language = "en_US";
 
     public HmarketConfig(Hmarket p) {
         this.p = p;
