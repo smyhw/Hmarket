@@ -35,7 +35,7 @@ dependencies {
     } else {
         compileOnly('cat.nyaa:aolib:1.0.6')
         compileOnly('cat.nyaa:nyaacore:9.0-SNAPSHOT')
-        compileOnly('cat.nyaa:ecore:0.1.7')
+        compileOnly('cat.nyaa:ecore:0.1.8')
     }
 
     compileOnly 'org.jetbrains:annotations:22.0.0'

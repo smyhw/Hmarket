@@ -48,16 +48,27 @@ public class ShopUI implements IBaseUI {
         return goods.size();
     }
 
+    public boolean hasNextPage() {
+        return goods.size() > PAGE_SIZE * page;
+    }
+
+    public boolean hasPrevPage() {
+        return page > 1;
+    }
+
     public void addButton() {
         var buttonPrev = new ButtonUIItem(-1, this);
         var buttonNext = new ButtonUIItem(1, this);
-        uiItemList.set(45, buttonPrev);
-        uiItemList.set(53, buttonNext);
-
+        if (hasPrevPage()) {
+            uiItemList.set(45, buttonPrev);
+        }
+        if (hasNextPage()) {
+            uiItemList.set(53, buttonNext);
+        }
     }
 
     protected boolean check(int slotNum, DataClickType clickType, Player player) {
-        if (!clickType.equals(DataClickType.PICKUP)) {
+        if (!clickType.equals(DataClickType.PICKUP) && !clickType.equals(DataClickType.PICKUP_ALL)) {
             return true;
         }
         // Player Inventory
