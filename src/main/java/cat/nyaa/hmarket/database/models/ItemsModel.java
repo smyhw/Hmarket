@@ -1,4 +1,4 @@
-package cat.nyaa.hmarket.database;
+package cat.nyaa.hmarket.database.models;
 
 import cat.nyaa.hmarket.shopitem.ItemCache;
 import cat.nyaa.hmarket.shopitem.ShopItemType;

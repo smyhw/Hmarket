@@ -1,4 +1,7 @@
-package cat.nyaa.hmarket.database;
+package cat.nyaa.hmarket.database.tables;
+
+import cat.nyaa.hmarket.database.DataSourceManager;
+import cat.nyaa.hmarket.database.models.ItemsModel;
 
 import java.sql.SQLException;
 import java.util.ArrayList;

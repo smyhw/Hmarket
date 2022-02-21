@@ -1,4 +1,4 @@
-package cat.nyaa.hmarket.database;
+package cat.nyaa.hmarket.database.models;
 
 
 public class StoreModel {

@@ -1,5 +1,7 @@
-package cat.nyaa.hmarket.database;
+package cat.nyaa.hmarket.database.tables;
 
+import cat.nyaa.hmarket.database.DataSourceManager;
+import cat.nyaa.hmarket.database.models.LocationModel;
 import com.google.common.collect.Iterables;
 import org.jetbrains.annotations.Nullable;
 
@@ -7,7 +9,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.UUID;
 
-public class LocationsTables {
+public class LocationsTable {
 
     @Nullable
     public static LocationModel[] getLocationsByOwner(UUID owner) throws SQLException {
