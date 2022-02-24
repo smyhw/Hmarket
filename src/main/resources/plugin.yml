@@ -5,15 +5,21 @@ api-version: 1.18
 prefix: Hmarket
 load: POSTWORLD
 depend:
-  - Vault
   - NyaaCore
   - ProtocolLib
   - aolib
+  - ECore
 libraries:
   - com.zaxxer:HikariCP:5.0.1
+  - org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0
 commands:
   hmarket:
     aliases:
       - "h"
     usage: "/h <args>"
+    description: ""
+  hmall:
+    aliases:
+      - "hm"
+    usage: "/hm <args>"
     description: ""

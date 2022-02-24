@@ -11,13 +11,19 @@ command:
       success: "add {itemName} &r* %d to your buy shop successfully. price %.2f"
     sell:
       success: "add {itemName} &r* {amount} to your sell shop successfully. price %.2f"
+    mall:
+      success: "add {itemName} &r* %d to mall successfully. price %.2f"
 
 shop:
   next: "next page"
   last: "last page"
   itemPrize: "prize %.2f  (Tax rate %.2f %%)"
   noEnoughItem: "not enough "
+  noEnoughSpace: "hasn't enough space"
   destroy: "SignShop has been destroyed"
+  insufficientBalance: "Insufficient balance"
   transaction:
-    buy: "sold {itemName} &r* {amount} to %s successfully. receive %.2f"
-    sell: "buy {itemName} &r* {amount} from %s successfully. cost %.2f"
+    buy: "sold {itemName} &r* %d to %s successfully. receive %.2f"
+    sell: "buy {itemName} &r* %d from %s successfully. cost %.2f"
+
+unknownerror: "Unknown error. please consult op"

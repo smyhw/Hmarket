@@ -1,16 +1,16 @@
 package cat.nyaa.hmarket.shopitem;
 
-import cat.nyaa.hmarket.Hmarket;
-import cat.nyaa.hmarket.database.ItemTables;
+import cat.nyaa.hmarket.database.tables.ItemTables;
 import com.google.common.collect.Lists;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.sql.SQLException;
 import java.util.*;
 
 public class ItemCacheManager {
+
+    private Plugin hmarket;
 
     private static final class InstanceHolder {
         private static final ItemCacheManager instance = new ItemCacheManager();
@@ -23,18 +23,24 @@ public class ItemCacheManager {
         return InstanceHolder.instance;
     }
 
-    private Map<UUID, List<ItemCache>> itemCache = new HashMap<>();
+    private final Map<UUID, List<ItemCache>> itemCache = new HashMap<>();
+    private final List<ItemCache> mallItemCache = new LinkedList<>();
 
-    public void init() {
-
+    public void init(Plugin hmarket) {
+        this.hmarket = hmarket;
         try {
             var items = ItemTables.selectAll();
             assert items != null;
             for (var i : items) {
-                if (itemCache.containsKey(i.owner)) {
-                    itemCache.get(i.owner).add(i.toCache());
+                var type = ShopItemType.valueOf(i.type);
+                if (type == ShopItemType.Mall) {
+                    mallItemCache.add(i.toCacheWithOwner());
                 } else {
-                    itemCache.put(i.owner, Lists.newArrayList(i.toCache()));
+                    if (itemCache.containsKey(i.owner)) {
+                        itemCache.get(i.owner).add(i.toCache());
+                    } else {
+                        itemCache.put(i.owner, Lists.newArrayList(i.toCache()));
+                    }
                 }
             }
         } catch (SQLException e) {
@@ -42,12 +48,16 @@ public class ItemCacheManager {
         }
     }
 
-    public List<ItemCache> getItemCache(UUID owner, ShopItemType type) {
+    public List<ItemCache> getSignItemCache(UUID owner, ShopItemType type) {
         var rs = itemCache.get(owner);
         if (rs != null) {
             return rs.stream().filter(i -> i.type.equals(type)).toList();
         }
         return new ArrayList<>();
+    }
+
+    public List<ItemCache> getMallItemCache() {
+        return mallItemCache;
     }
 
     public void addShopItem(ShopItem shopItem) {
@@ -60,5 +70,20 @@ public class ItemCacheManager {
             t.add(shopItem.toCache());
             itemCache.put(shopItem.getOwner(), t);
         }
+    }
+
+    public void syncDirty() {
+        var dirty = itemCache.values().stream()
+                .flatMap(List::stream)
+                .filter(i -> i.isDirty)
+                .toList();
+        var dirty1 = mallItemCache.stream().filter(i -> i.isDirty).toList();
+        dirty.addAll(dirty1);
+        Bukkit.getScheduler().runTaskAsynchronously(hmarket, () -> {
+            ItemTables.syncDirty(dirty);
+            for (var item : dirty) {
+                item.isDirty = false;
+            }
+        });
     }
 }

@@ -1,6 +1,7 @@
 package cat.nyaa.hmarket.command;
 
 import cat.nyaa.hmarket.Hmarket;
+import cat.nyaa.hmarket.command.sub.MallHandle;
 import cat.nyaa.hmarket.command.sub.SignShopHandle;
 import cat.nyaa.nyaacore.ILocalizer;
 import cat.nyaa.nyaacore.cmdreceiver.CommandReceiver;
@@ -10,6 +11,7 @@ public class CommandHandle extends CommandReceiver {
 
     @SubCommand(value = "shop", permission = "")
     public SignShopHandle signShopHandle;
+
 
     /**
      * @param plugin for logging purpose only
