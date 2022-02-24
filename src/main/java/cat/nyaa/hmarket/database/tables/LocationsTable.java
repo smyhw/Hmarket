@@ -42,8 +42,8 @@ public class LocationsTable {
                         var y = rs.getDouble(3);
                         var z = rs.getDouble(4);
                         var owner = UUID.fromString(rs.getString(5));
-                        var lores = rs.getString(7);
-                        var type = rs.getString(8);
+                        var lores = rs.getString(6);
+                        var type = rs.getString(7);
                         locations.add(new LocationModel(world, x, y, z, owner, lores, type));
                     }
                     return Iterables.toArray(locations, LocationModel.class);

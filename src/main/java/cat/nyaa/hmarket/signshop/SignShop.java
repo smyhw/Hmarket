@@ -1,6 +1,6 @@
 package cat.nyaa.hmarket.signshop;
 
-import cat.nyaa.hmarket.database.LocationModel;
+import cat.nyaa.hmarket.database.models.LocationModel;
 import cat.nyaa.hmarket.shopitem.ShopItemType;
 import com.google.gson.Gson;
 import org.bukkit.Bukkit;
@@ -8,7 +8,6 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
@@ -77,8 +76,7 @@ public class SignShop {
     }
 
     private String getTitle() {
-        //TODO
-        return "Buy";
+        return type.name();
     }
 
     public LocationModel toModel() {

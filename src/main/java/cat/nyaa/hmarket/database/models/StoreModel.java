@@ -1,7 +1,9 @@
 package cat.nyaa.hmarket.database.models;
 
 
+
 public class StoreModel {
+
     public String nbt;
     public int amount;
     public String owner;

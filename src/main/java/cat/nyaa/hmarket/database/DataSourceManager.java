@@ -3,6 +3,7 @@ package cat.nyaa.hmarket.database;
 import cat.nyaa.hmarket.HmarketConfig;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 
@@ -23,7 +24,7 @@ public class DataSourceManager {
     public static void init(HmarketConfig conf) {
         instance = new DataSourceManager(conf);
     }
-    private DataSourceManager(HmarketConfig conf){
+    private DataSourceManager(@NotNull HmarketConfig conf){
         File f = new File(conf.getPlugin().getDataFolder(), conf.DBFile);
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl("jdbc:sqlite:" + f.getAbsolutePath());

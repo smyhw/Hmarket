@@ -99,7 +99,7 @@ public class SignShopHandle extends CommandReceiver {
 
         //TODO: limit
 
-        new Message("").append(I18n.format("command.shop.sell.success", handItem.getAmount(), price), handItem).send(player);
+        new Message("").append(I18n.format("command.shop.sell.success", price), handItem).send(player);
     }
 
     private boolean checkValid(CommandSender sender, Player player, Block block, ItemStack handItem, SignShopType type) {

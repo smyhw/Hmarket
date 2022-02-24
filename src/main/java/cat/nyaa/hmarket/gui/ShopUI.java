@@ -13,6 +13,7 @@ import cat.nyaa.hmarket.shopitem.ItemCache;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Material;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -68,7 +69,7 @@ public class ShopUI implements IBaseUI {
     }
 
     protected boolean check(int slotNum, DataClickType clickType, Player player) {
-        if (!clickType.equals(DataClickType.PICKUP) && !clickType.equals(DataClickType.PICKUP_ALL)) {
+        if (!clickType.equals(DataClickType.PICKUP) && !clickType.equals(DataClickType.QUICK_MOVE)) {
             return true;
         }
         // Player Inventory
@@ -111,6 +112,10 @@ public class ShopUI implements IBaseUI {
 
             uiItemList.set(i, new UiShopItem(item));
         }
+        refreshGui();
+    }
+
+    public void refreshGui() {
         if (Hmarket.getUiManager() == null) return;
 
         Hmarket.getUiManager().broadcastChanges(this);
@@ -127,6 +132,14 @@ public class ShopUI implements IBaseUI {
         for (int i1 = 0; i1 < 9; ++i1) {
             uiItemList.add(new PlayerInventoryItem(i1));
         }
+    }
+
+    protected int getNum(ItemCache itemCache, @NotNull DataClickType clickType) {
+        var num = 1;
+        if (clickType.equals(DataClickType.QUICK_MOVE)) {
+            num = itemCache.nbt.getAmount();
+        }
+        return num;
     }
 
     @Override

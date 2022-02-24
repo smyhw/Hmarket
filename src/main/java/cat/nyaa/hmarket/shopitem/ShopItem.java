@@ -1,15 +1,13 @@
 package cat.nyaa.hmarket.shopitem;
 
-import cat.nyaa.aolib.aoui.item.IUiItem;
+import cat.nyaa.hmarket.database.models.ItemsModel;
 import cat.nyaa.nyaacore.utils.ItemStackUtils;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-
-import cat.nyaa.hmarket.database.ItemsModel;
 
 import java.util.UUID;
 
 public class ShopItem {
+    public UUID uuid;
     private UUID owner;
     private double price;
     private ItemStack nbt;
@@ -22,12 +20,18 @@ public class ShopItem {
         this.type = type;
     }
 
+    public void randomUUID() {
+        if (uuid == null) {
+            this.uuid = UUID.randomUUID();
+        }
+    }
+
     public ItemsModel toItemModel() {
-        return new ItemsModel(ItemStackUtils.itemToBase64(nbt), price, owner, type.name());
+        return new ItemsModel(ItemStackUtils.itemToBase64(nbt), price, owner, type.name(), uuid);
     }
 
     public ItemCache toCache() {
-        return new ItemCache(this.nbt, this.price, this.type);
+        return new ItemCache(this.uuid, this.nbt, this.price, this.type);
     }
 
     public UUID getOwner() {

@@ -1,9 +1,8 @@
 package cat.nyaa.hmarket.signshop;
 
-import cat.nyaa.hmarket.database.LocationModel;
-import cat.nyaa.hmarket.database.LocationsTables;
+import cat.nyaa.hmarket.database.models.LocationModel;
+import cat.nyaa.hmarket.database.tables.LocationsTable;
 import org.bukkit.Location;
-import org.bukkit.block.Sign;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -23,7 +22,7 @@ public class SignShopManager {
 
     public void loadSignShopFromDb() {
         try {
-            var data = LocationsTables.getLocations();
+            var data = LocationsTable.getLocations();
             for (LocationModel l : data) {
                 locationSignShopMap.put(l.getLocation(), new SignShop(l));
             }
@@ -35,7 +34,7 @@ public class SignShopManager {
     public void addSignShop(SignShop shop) {
         this.locationSignShopMap.put(shop.location, shop);
         try {
-            LocationsTables.insertLocation(shop.toModel());
+            LocationsTable.insertLocation(shop.toModel());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -44,7 +43,7 @@ public class SignShopManager {
     public void removeSignShop(SignShop shop) {
         this.locationSignShopMap.remove(shop.location);
         try {
-            LocationsTables.removeLocation(shop.toModel());
+            LocationsTable.removeLocation(shop.toModel());
         } catch (SQLException e) {
             e.printStackTrace();
         }
