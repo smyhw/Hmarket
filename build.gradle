@@ -5,25 +5,26 @@ plugins {
 }
 
 // Plugin config
+var minecraftVersionStr = "1.18.2"
 ext.pluginName = "Hmarket"
 ext.pluginname = ext.pluginName.toLowerCase()
 ext.majorVersion = 0
 ext.minorVersion = 7
-ext.minecraftVersion = "1.18.1"
+ext.minecraftVersion = minecraftVersionStr
 sourceCompatibility = 17
 targetCompatibility = 17
 
 // Supplied by Jenkins
-ext.buildNumber = System.env.BUILD_NUMBER == null ? "x"                : "$System.env.BUILD_NUMBER"
+ext.buildNumber = System.env.BUILD_NUMBER == null ? "x" : "$System.env.BUILD_NUMBER"
 ext.mavenDirectory = System.env.MAVEN_DIR == null ? "$projectDir/repo" : "$System.env.MAVEN_DIR"
-ext.jdDirectory = System.env.JAVADOCS_DIR == null ? null               : "$System.env.JAVADOCS_DIR"
+ext.jdDirectory = System.env.JAVADOCS_DIR == null ? null : "$System.env.JAVADOCS_DIR"
 
 // Version used for distribution. Different from maven repo
 group = "cat.nyaa"
 archivesBaseName = "${pluginName}-mc$minecraftVersion"
 version = "$majorVersion.$minorVersion.$buildNumber".toString()
 runServer {
-    minecraftVersion("1.18.1")
+    minecraftVersion(minecraftVersionStr)
 }
 repositories {
     mavenCentral()
@@ -31,22 +32,19 @@ repositories {
     maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
     maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
     maven { url = 'https://oss.sonatype.org/content/repositories/central' }
-    maven {url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/'}
+    maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
 
-    maven { name 'NyaaCat';              url 'https://ci.nyaacat.com/maven/' }
+    maven { name 'NyaaCat'; url 'https://ci.nyaacat.com/maven/' }
 }
 
 dependencies {
     compileOnly "org.spigotmc:spigot-api:$minecraftVersion-R0.1-SNAPSHOT"
 
     // other nyaa plugins
-    if (gradle.hasProperty("useLocalDependencies") && gradle.useLocalDependencies) {
-        compileOnly project(":NyaaCore")
-        compileOnly project(":aolib")
-    } else {
-        compileOnly('cat.nyaa:nyaacore:9.0-SNAPSHOT') { transitive = true }
-        compileOnly('cat.nyaa:aolib:1.0.28') { transitive = true }
-    }
+    compileOnly('cat.nyaa:nyaacore:9.0-SNAPSHOT')
+    compileOnly('cat.nyaa:aolib:1.0.28')
+    compileOnly('cat.nyaa:ecore:0.2.2')
+
     compileOnly 'org.jetbrains:annotations:22.0.0'
     compileOnly 'com.zaxxer:HikariCP:5.0.1'
 }
@@ -75,9 +73,9 @@ processResources { // modify version string
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            group      project.group
+            group project.group
             artifactId pluginname
-            version    "$majorVersion.$minorVersion-SNAPSHOT"
+            version "$majorVersion.$minorVersion-SNAPSHOT"
 
             from components.java
             artifact sourcesJar

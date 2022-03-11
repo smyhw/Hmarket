@@ -9,6 +9,8 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public interface IMarketInventoryAPI {
+    CompletableFuture<Boolean> putItem(UUID marketId, ItemStack item);
+
     CompletableFuture<Boolean> putItem(Player player, UUID marketId, ItemStack item);
 
     CompletableFuture<Boolean> takeItem(Player player, UUID marketId, int itemId);
