@@ -3,14 +3,21 @@ version: '${version}'
 main: cat.nyaa.hmarket.Hmarket
 api-version: 1.18
 prefix: Hmarket
-libraries:
-  - com.zaxxer:HikariCP:5.0.1
 depend:
   - NyaaCore
   - aolib
+  - ECore
 commands:
   hmarket:
     aliases:
       - "hm"
     usage: "/hm <args>"
     description: ""
+permissions:
+  hmarket.command.view:
+    description: "View the Hmarket"
+    default: true
+  hmarket.command.buy:
+    description: "Buy an item from the Hmarket"
+  hmarket.command.sell:
+    description: "Sell an item to the Hmarket"

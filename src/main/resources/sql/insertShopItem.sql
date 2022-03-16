@@ -1,0 +1,1 @@
+INSERT INTO shop_item (itemNbt,amount,owner,market,price,createdAt,updatedAt) VALUES (?,?,?,?,?,?,?);

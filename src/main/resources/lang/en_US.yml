@@ -1,0 +1,9 @@
+info:
+  ui:
+    item:
+      price: 'Price: %s'
+      owner: "Owner: %s"
+      owner_item_back: "Click to get your item back"
+    market:
+      out_of_stock: "Out of stock"
+      not_enough_money: "You don't have enough money to buy this item."
