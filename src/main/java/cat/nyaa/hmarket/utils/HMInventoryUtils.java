@@ -6,10 +6,10 @@ import org.bukkit.inventory.ItemStack;
 
 public class HMInventoryUtils {
     public static void giveOrDropItem(Player player, ItemStack itemStack) {
-        if(InventoryUtils.hasEnoughSpace(player.getInventory(), itemStack)){
-           if(InventoryUtils.addItem(player.getInventory(), itemStack)){
-               return;
-           }
+        if (InventoryUtils.hasEnoughSpace(player.getInventory(), itemStack)) {
+            if (InventoryUtils.addItem(player.getInventory(), itemStack)) {
+                return;
+            }
         }
         player.getWorld().dropItem(player.getLocation(), itemStack);
     }

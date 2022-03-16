@@ -22,9 +22,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
 public class HMarketAPI implements IMarketAPI {
+    public static UUID systemShopId = UUID.nameUUIDFromBytes("HM_system_shop".getBytes());
     private final HmarketDatabaseManager databaseManager;
     private final EconomyCore economyCore;
-    public static UUID systemShopId = UUID.nameUUIDFromBytes("HM_system_shop".getBytes());
 
     public HMarketAPI(HmarketDatabaseManager databaseManager, EconomyCore economyCore) {
         this.databaseManager = databaseManager;

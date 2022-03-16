@@ -22,14 +22,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 public class HmarketDatabaseManager {
+    public static final String TABLE_SHOP_ITEM = "shop_item";
     private static final LinkedBlockingQueue<Runnable> databaseExecutorQueue = new LinkedBlockingQueue<>();
     public static final ExecutorService databaseExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, databaseExecutorQueue);
-    public static final String TABLE_SHOP_ITEM = "shop_item";
     private final Connection connection;
     private final AtomicInteger counter = new AtomicInteger();
     private Hmarket plugin;
 
-   public HmarketDatabaseManager(Hmarket plugin) {
+    public HmarketDatabaseManager(Hmarket plugin) {
 
         var optConn = cat.nyaa.aolib.utils.DatabaseUtils.newSqliteJdbcConnection(plugin);
         if (optConn.isEmpty()) {
@@ -42,6 +42,12 @@ public class HmarketDatabaseManager {
             e.printStackTrace();
         }
         initDatabase(plugin);
+    }
+
+    @Contract("_ -> new")
+    public static <U> @NotNull CompletableFuture<U> supplyAsync(Supplier<U> supplier) {
+        if (databaseExecutor.isShutdown()) throw new RuntimeException("playerDataExecutor is shutdown");
+        return CompletableFuture.supplyAsync(supplier, databaseExecutor);
     }
 
     private void initDatabase(Hmarket plugin) {
@@ -98,12 +104,6 @@ public class HmarketDatabaseManager {
         });
     }
 
-    @Contract("_ -> new")
-    public static <U> @NotNull CompletableFuture<U> supplyAsync(Supplier<U> supplier) {
-        if (databaseExecutor.isShutdown()) throw new RuntimeException("playerDataExecutor is shutdown");
-        return CompletableFuture.supplyAsync(supplier, databaseExecutor);
-    }
-
     private UUID getNewItemUUID() {
         return UUID.nameUUIDFromBytes(Bytes.concat(Longs.toByteArray(TimeUtils.getUnixTimeStampNow()), Ints.toByteArray(counter.incrementAndGet())));
     }
@@ -115,7 +115,7 @@ public class HmarketDatabaseManager {
         }
     }
 
-    public  CompletableFuture<Integer>  updateShopItem() {
-       return cat.nyaa.aolib.utils.DatabaseUtils.executeUpdateAsync(connection, plugin, "updateShopItem.sql", databaseExecutor);
+    public CompletableFuture<Integer> updateShopItem() {
+        return cat.nyaa.aolib.utils.DatabaseUtils.executeUpdateAsync(connection, plugin, "updateShopItem.sql", databaseExecutor);
     }
 }

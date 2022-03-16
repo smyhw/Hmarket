@@ -13,12 +13,14 @@ import java.util.concurrent.CompletableFuture;
 
 public interface IMarketAPI {
     UUID getSystemShopId();
+
     CompletableFuture<Optional<Integer>> offer(Player player, UUID marketId, ItemStack items, double price) throws NotEnoughItemsException;
 
-    CompletableFuture<Boolean> buy(Player player,int itemId, int amount);
-    CompletableFuture<Boolean> buy(Player player,ShopItemData itemData, int amount) throws NotEnoughMoneyException, NotEnoughItemsException;
+    CompletableFuture<Boolean> buy(Player player, int itemId, int amount);
+
+    CompletableFuture<Boolean> buy(Player player, ShopItemData itemData, int amount) throws NotEnoughMoneyException, NotEnoughItemsException;
 
     CompletableFuture<List<ShopItemData>> getShopItems(UUID marketId);
 
-     CompletableFuture<Integer> updateShopItem();
+    CompletableFuture<Integer> updateShopItem();
 }

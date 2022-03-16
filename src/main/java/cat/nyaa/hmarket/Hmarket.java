@@ -16,15 +16,15 @@ import org.jetbrains.annotations.Nullable;
 public final class Hmarket extends JavaPlugin {
 
     @Nullable
+    public static UIManager uiManager;
+    private static Hmarket instance;
+    @Nullable
     public EconomyCore economyProvider;
     @Nullable
     private HmarketDatabaseManager databaseManager;
     private HMConfig hmConfig;
     private HMI18n i18n;
     private HMCommandHeader commandHandler;
-    private static Hmarket instance;
-    @Nullable
-    public static UIManager uiManager;
 
     public static Hmarket getInstance() {
         return instance;
@@ -88,7 +88,7 @@ public final class Hmarket extends JavaPlugin {
             databaseManager.close();
             databaseManager = null;
         }
-        if(uiManager != null){
+        if (uiManager != null) {
             uiManager.destructor();
             uiManager = null;
         }

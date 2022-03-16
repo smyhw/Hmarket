@@ -11,9 +11,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.UUID;
 
 public class HMI18n extends LanguageRepository {
+    private static HMI18n instance;
     private final Hmarket plugin;
     private final String language;
-    private static HMI18n instance;
 
     public HMI18n(Hmarket plugin, String language) {
         instance = this;
