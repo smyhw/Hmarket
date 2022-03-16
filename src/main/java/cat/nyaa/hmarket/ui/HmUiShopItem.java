@@ -2,6 +2,7 @@ package cat.nyaa.hmarket.ui;
 
 import cat.nyaa.aolib.aoui.item.IClickableUiItem;
 import cat.nyaa.aolib.network.data.DataClickType;
+import cat.nyaa.aolib.utils.TaskUtils;
 import cat.nyaa.hmarket.HMI18n;
 import cat.nyaa.hmarket.Hmarket;
 import cat.nyaa.hmarket.api.exception.NotEnoughItemsException;
@@ -14,14 +15,18 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class HmUiShopItem implements IClickableUiItem {
     private final Runnable updateCallback;
     private final ShopItemData itemData;
+    private final Consumer<Boolean> setLocked;
 
-    public HmUiShopItem(ShopItemData shopItemData, Runnable UpdateCallback) {
+    public HmUiShopItem(ShopItemData shopItemData, Runnable UpdateCallback, Consumer<Boolean> setLocked) {
         this.itemData = shopItemData;
         this.updateCallback = UpdateCallback;
+        this.setLocked = setLocked;
+
     }
 
     @Override
@@ -29,13 +34,18 @@ public class HmUiShopItem implements IClickableUiItem {
         var hMarketAPI = Hmarket.getAPI();
         if (hMarketAPI == null) return;
         try {
+            setLocked.accept(true);
             hMarketAPI.buy(player, itemData, 1).thenApplyAsync((b) -> {
                 if (b) {
                     HMI18n.sendPlayerSync(player.getUniqueId(), "info.ui.market.buy_success");
                 } else {
                     HMI18n.sendPlayerSync(player.getUniqueId(), "info.ui.market.buy_failed");
                 }
-                updateCallback.run();
+                TaskUtils.async.callSyncAndGet(() -> {
+                    setLocked.accept(false);
+                    updateCallback.run();
+                    return null;
+                });
                 return b;
             });
         } catch (NotEnoughMoneyException e) {

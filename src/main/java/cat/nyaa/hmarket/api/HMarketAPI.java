@@ -72,7 +72,6 @@ public class HMarketAPI implements IMarketAPI {
                     });
                 })
                 .thenApplyAsync(shopItemData -> {
-                    Logger.getAnonymousLogger().info("shopItemData:" + shopItemData);
                     if (shopItemData == null) return false; // not enough money or item not exist
                     try {
                         return databaseManager.removeItemsFromShop(itemId, amount).thenApply((b) -> {
