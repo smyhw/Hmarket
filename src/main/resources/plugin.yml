@@ -8,16 +8,17 @@ depend:
   - aolib
   - ECore
 commands:
-  hmarket:
+  hmarket_market:
     aliases:
       - "hm"
     usage: "/hm <args>"
     description: ""
+  hmarket:
+    aliases:
+      - "h"
+    usage: "/h <args>"
+    description: ""
 permissions:
-  hmarket.command.view:
-    description: "View the Hmarket"
+  hmarket.mall:
+    description: "market"
     default: true
-  hmarket.command.buy:
-    description: "Buy an item from the Hmarket"
-  hmarket.command.sell:
-    description: "Sell an item to the Hmarket"

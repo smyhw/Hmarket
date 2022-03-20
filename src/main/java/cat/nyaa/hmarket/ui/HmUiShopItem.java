@@ -11,6 +11,7 @@ import cat.nyaa.hmarket.data.ShopItemData;
 import cat.nyaa.nyaacore.utils.ItemStackUtils;
 import com.google.common.collect.Lists;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -57,6 +58,8 @@ public class HmUiShopItem implements IClickableUiItem {
 
     @Override
     public ItemStack getWindowItem(Player player) {
+        var api = Hmarket.getAPI();
+        if (api == null) return new ItemStack(Material.AIR);
         var item = ItemStackUtils.itemFromBase64(itemData.itemNbt());
         item.setAmount(itemData.amount());
         var ownerName = Bukkit.getOfflinePlayer(UUID.fromString(itemData.owner())).getName();
@@ -66,6 +69,7 @@ public class HmUiShopItem implements IClickableUiItem {
             if (lore == null) lore = Lists.newArrayList();
             lore.add(HMI18n.format("info.ui.item.owner", ownerName == null ? itemData.owner() : ownerName));
             lore.add(HMI18n.format("info.ui.item.price", itemData.price()));
+            lore.add(HMI18n.format("info.ui.item.tax", api.getFeeRate(itemData)*100.0, itemData.price() * (1.0 + api.getFeeRate(itemData))));
             lore.add(HMI18n.format("info.ui.item.owner_item_back"));
             meta.setLore(lore);
             item.setItemMeta(meta);

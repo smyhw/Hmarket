@@ -1,11 +1,17 @@
 command:
+  not-enough-space: "Not enough space"
+  not-enough-money: "You don't have enough money to do that."
   only-player-can-do: "Only player can do this"
   invalid-price: Invalid price
   invalid-item-in-hand: You can't use that item in your hand!
   not-enough-item-in-hand: "You don't have enough item in hand."
 info:
+  market:
+    sellfee : "Paid the listing fee: %s"
+    sell: "Player %s has added a new item to the Global Store:"
   ui:
     item:
+      tax: "tax: %s%%, price including tax: %s"
       price: 'Price: %s'
       owner: "Owner: %s"
       owner_item_back: "Click to get your item back"

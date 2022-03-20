@@ -1,1 +1,0 @@
-DELETE FROM shop_item WHERE amount<=0;

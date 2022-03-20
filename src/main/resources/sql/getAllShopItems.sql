@@ -1,1 +1,1 @@
-SELECT * FROM shop_item;
+SELECT * FROM shop_item WHERE market=?;

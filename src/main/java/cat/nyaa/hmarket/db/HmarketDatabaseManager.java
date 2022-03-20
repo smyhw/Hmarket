@@ -101,7 +101,7 @@ public class HmarketDatabaseManager {
                 e.printStackTrace();
             }
             return list;
-        });
+        }, marketId.toString());
     }
 
     private UUID getNewItemUUID() {
@@ -115,7 +115,54 @@ public class HmarketDatabaseManager {
         }
     }
 
-    public CompletableFuture<Integer> updateShopItem() {
-        return cat.nyaa.aolib.utils.DatabaseUtils.executeUpdateAsync(connection, plugin, "updateShopItem.sql", databaseExecutor);
+
+    public @NotNull CompletableFuture<Integer> removeShopItem(int itemId) {
+        return cat.nyaa.aolib.utils.DatabaseUtils.executeUpdateAsync(connection, plugin, "removeShopItemById.sql", databaseExecutor, itemId);
     }
+
+    public @NotNull CompletableFuture<List<ShopItemData>> getNeedUpdateItems(long begin) {
+        return cat.nyaa.aolib.utils.DatabaseUtils.executeQueryAsync(connection, plugin, "getNeedUpdateItems.sql", databaseExecutor, (rs) -> {
+            List<ShopItemData> list = Lists.newArrayList();
+            try {
+                while (rs.next()) {
+                    list.add(ShopItemData.fromResultSet(rs));
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return list;
+        }, begin);
+    }
+
+    public @NotNull CompletableFuture<Integer> setItemUpdateTime(int itemId, long now) {
+        return cat.nyaa.aolib.utils.DatabaseUtils.executeUpdateAsync(connection, plugin, "setShopItemUpdateTime.sql", databaseExecutor, now, itemId);
+    }
+
+    public CompletableFuture<Optional<Integer>> getShopAllItemCount(@NotNull UUID marketId) {
+
+        return cat.nyaa.aolib.utils.DatabaseUtils.executeQueryAsync(connection, plugin, "getAllShopItems.sql", databaseExecutor, (rs) -> {
+            try {
+                if (rs.next()) {
+                    return Optional.of( rs.getInt(1));
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return Optional.empty();
+        }, marketId.toString());
+    }
+
+    public CompletableFuture<Optional<Integer>> getShopItemCountByOwner(@NotNull UUID marketId, @NotNull UUID ownerId) {
+        return cat.nyaa.aolib.utils.DatabaseUtils.executeQueryAsync(connection, plugin, "getShopItemCountByOwner.sql", databaseExecutor, (rs) -> {
+            try {
+                if (rs.next()) {
+                    return Optional.of( rs.getInt(1));
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return Optional.empty();
+        }, marketId.toString(),ownerId.toString());
+    }
+
 }
