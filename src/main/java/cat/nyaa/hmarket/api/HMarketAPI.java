@@ -131,7 +131,7 @@ public class HMarketAPI implements IMarketAPI {
     private void onShopOffer(@NotNull Player player, @NotNull UUID marketId, @NotNull ItemStack items, double price) {
         HMI18n.send(player, "info.market.sellfee", getListingFee(marketId));
         if (marketId.equals(systemShopId)) {
-            new Message(HMI18n.format("info.market.sell", player)).append(items).broadcast();
+            new Message(HMI18n.format("info.market.sell", player.getName())).append(items).broadcast();
         }
     }
 
