@@ -8,6 +8,7 @@ import cat.nyaa.hmarket.Hmarket;
 import cat.nyaa.hmarket.api.exception.NotEnoughItemsException;
 import cat.nyaa.hmarket.api.exception.NotEnoughMoneyException;
 import cat.nyaa.hmarket.data.ShopItemData;
+import cat.nyaa.hmarket.utils.HMMathUtils;
 import cat.nyaa.nyaacore.utils.ItemStackUtils;
 import com.google.common.collect.Lists;
 import org.bukkit.Bukkit;
@@ -31,12 +32,25 @@ public class HmUiShopItem implements IClickableUiItem {
     }
 
     @Override
-    public void onClick(DataClickType clickType, Player player) {
+    public void onClick(int slotNum, int buttonNum, DataClickType clickType, Player player) {
+        if (clickType == DataClickType.PICKUP && buttonNum == 0) {
+            onBuy(player, 1);
+            return;
+        }
+        if (clickType == DataClickType.QUICK_MOVE && buttonNum == 0) {
+            onBuy(player, itemData.amount());
+            return;
+        }
+
+
+    }
+
+    private void onBuy(Player player, int amount) {
         var hMarketAPI = Hmarket.getAPI();
         if (hMarketAPI == null) return;
         try {
             setLocked.accept(true);
-            hMarketAPI.buy(player, itemData, 1).thenApplyAsync((b) -> {
+            hMarketAPI.buy(player, itemData, amount).thenApplyAsync((b) -> {
                 if (b) {
                     HMI18n.sendPlayerSync(player.getUniqueId(), "info.ui.market.buy_success");
                 } else {
@@ -53,7 +67,13 @@ public class HmUiShopItem implements IClickableUiItem {
             HMI18n.send(player, "info.ui.market.not_enough_money");
         } catch (NotEnoughItemsException e) {
             HMI18n.send(player, "info.ui.market.out_of_stock");
+            updateCallback.run();
         }
+    }
+
+    @Override
+    public void onClick(DataClickType clickType, Player player) {
+
     }
 
     @Override
@@ -69,9 +89,12 @@ public class HmUiShopItem implements IClickableUiItem {
             if (lore == null) lore = Lists.newArrayList();
             lore.add(HMI18n.format("info.ui.item.owner", ownerName == null ? itemData.owner() : ownerName));
             lore.add(HMI18n.format("info.ui.item.price", itemData.price()));
-            lore.add(HMI18n.format("info.ui.item.tax", api.getFeeRate(itemData) * 100.0, itemData.price() * (1.0 + api.getFeeRate(itemData))));
-            if (UUID.fromString(itemData.owner()).equals(player.getUniqueId()))
+            lore.add(HMI18n.format("info.ui.item.tax", api.getFeeRate(itemData) * 100.0, HMMathUtils.round((itemData.price() * (1.0 + api.getFeeRate(itemData))), 2)));
+            if (UUID.fromString(itemData.owner()).equals(player.getUniqueId())) {
                 lore.add(HMI18n.format("info.ui.item.owner_item_back"));
+            } else {
+                lore.add(HMI18n.format("info.ui.item.buy_item"));
+            }
             meta.setLore(lore);
             item.setItemMeta(meta);
         }

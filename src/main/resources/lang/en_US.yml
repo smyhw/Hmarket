@@ -12,10 +12,16 @@ command:
   not-enough-item-in-hand: "You don't have enough item in hand."
 info:
   market:
-    sellfee : "Paid the listing fee: %s"
+    sellfee: "Paid the listing fee: %s"
     sell: "Player %s has added a new item to the Global Store:"
   ui:
+    title:
+      shop:
+        system: "Global Store"
+        user: "%s's sign store"
+
     item:
+      buy_item: "Click to buy item"
       tax: "tax: %s%%, price including tax: %s"
       price: 'Price: %s'
       owner: "Owner: %s"

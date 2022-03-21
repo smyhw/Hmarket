@@ -2,6 +2,7 @@ package cat.nyaa.hmarket.command;
 
 import cat.nyaa.hmarket.HMI18n;
 import cat.nyaa.hmarket.api.HMarketAPI;
+import cat.nyaa.hmarket.utils.HMMathUtils;
 import cat.nyaa.hmarket.utils.HMUiUtils;
 import cat.nyaa.nyaacore.ILocalizer;
 import cat.nyaa.nyaacore.cmdreceiver.Arguments;
@@ -9,9 +10,6 @@ import cat.nyaa.nyaacore.cmdreceiver.CommandReceiver;
 import cat.nyaa.nyaacore.cmdreceiver.SubCommand;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 public class HMMarketCommand extends CommandReceiver {
     private final CommandManager commandManager;
@@ -31,7 +29,7 @@ public class HMMarketCommand extends CommandReceiver {
             HMI18n.send(sender, "command.only-player-can-do");
             return;
         }
-        HMUiUtils.openShopUi(player, HMarketAPI.systemShopId, "SHOP");
+        HMUiUtils.openShopUi(player, HMarketAPI.systemShopId);
     }
 
     @SubCommand(value = "offer", permission = "hmarket.mall")
@@ -42,7 +40,7 @@ public class HMMarketCommand extends CommandReceiver {
         }
         var hmApi = commandManager.getPlugin().getHMarketAPI();
         if (hmApi == null) return;
-        var price = BigDecimal.valueOf(args.nextDouble()).setScale(2, RoundingMode.HALF_DOWN).doubleValue();
+        var price = HMMathUtils.round(args.nextDouble(),2);
         if (price <= 0) {
             HMI18n.send(sender, "command.invalid-price");
             return;

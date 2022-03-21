@@ -2,6 +2,7 @@ package cat.nyaa.hmarket.api;
 
 import cat.nyaa.aolib.utils.TaskUtils;
 import cat.nyaa.ecore.EconomyCore;
+import cat.nyaa.ecore.ServiceFeePreference;
 import cat.nyaa.hmarket.HMI18n;
 import cat.nyaa.hmarket.api.data.MarketOfferResult;
 import cat.nyaa.hmarket.api.exception.NotEnoughItemsException;
@@ -177,7 +178,7 @@ public class HMarketAPI implements IMarketAPI {
                             if (b) {
                                 if (TaskUtils.async.callSyncAndGet(() -> {
                                     if (!UUID.fromString(shopItemData.owner()).equals(player.getUniqueId())) {
-                                        var tr = economyCore.playerTrade(player.getUniqueId(), UUID.fromString(shopItemData.owner()), shopItemData.price() * amount, getFeeRate(shopItemData));
+                                        var tr = economyCore.playerTrade(player.getUniqueId(), UUID.fromString(shopItemData.owner()), shopItemData.price() * amount, getFeeRate(shopItemData), ServiceFeePreference.ADDITIONAL);
                                         if (!tr.isSuccess()) {
                                             return false;
                                         }
