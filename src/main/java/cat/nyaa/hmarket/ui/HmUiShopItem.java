@@ -70,7 +70,8 @@ public class HmUiShopItem implements IClickableUiItem {
             lore.add(HMI18n.format("info.ui.item.owner", ownerName == null ? itemData.owner() : ownerName));
             lore.add(HMI18n.format("info.ui.item.price", itemData.price()));
             lore.add(HMI18n.format("info.ui.item.tax", api.getFeeRate(itemData) * 100.0, itemData.price() * (1.0 + api.getFeeRate(itemData))));
-            lore.add(HMI18n.format("info.ui.item.owner_item_back"));
+            if (UUID.fromString(itemData.owner()).equals(player.getUniqueId()))
+                lore.add(HMI18n.format("info.ui.item.owner_item_back"));
             meta.setLore(lore);
             item.setItemMeta(meta);
         }
