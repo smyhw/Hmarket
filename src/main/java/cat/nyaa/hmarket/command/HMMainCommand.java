@@ -14,8 +14,8 @@ public class HMMainCommand extends CommandReceiver {
         this.commandManager = commandManager;
     }
 
-    @SubCommand(value = "mail", permission = "hmarket.mall")
-    public void mail(CommandSender sender, Arguments args) {
+    @SubCommand(value = "mall", permission = "hmarket.mall")
+    public void mall(CommandSender sender, Arguments args) {
         commandManager.marketCommand.view(sender, args);
     }
 
