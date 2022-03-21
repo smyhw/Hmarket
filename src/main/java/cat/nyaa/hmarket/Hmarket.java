@@ -82,7 +82,7 @@ public final class Hmarket extends JavaPlugin {
             uiManager.destructor();
             uiManager = null;
         }
-        if(taskManager != null){
+        if (taskManager != null) {
             taskManager.destructor();
             taskManager = null;
         }

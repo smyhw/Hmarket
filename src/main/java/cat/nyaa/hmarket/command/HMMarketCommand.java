@@ -1,11 +1,7 @@
 package cat.nyaa.hmarket.command;
 
 import cat.nyaa.hmarket.HMI18n;
-import cat.nyaa.hmarket.Hmarket;
 import cat.nyaa.hmarket.api.HMarketAPI;
-import cat.nyaa.hmarket.api.exception.NotEnoughItemsException;
-import cat.nyaa.hmarket.api.exception.NotEnoughMoneyException;
-import cat.nyaa.hmarket.api.exception.NotEnoughSpaceException;
 import cat.nyaa.hmarket.utils.HMUiUtils;
 import cat.nyaa.nyaacore.ILocalizer;
 import cat.nyaa.nyaacore.cmdreceiver.Arguments;
@@ -22,7 +18,7 @@ public class HMMarketCommand extends CommandReceiver {
 
     /**
      * @param commandManager for logging purpose only
-     * @param _i18n  i18n
+     * @param _i18n          i18n
      */
     public HMMarketCommand(CommandManager commandManager, ILocalizer _i18n) {
         super(commandManager.getPlugin(), _i18n);
@@ -56,16 +52,20 @@ public class HMMarketCommand extends CommandReceiver {
             HMI18n.send(sender, "command.invalid-item-in-hand");
             return;
         }
-        try {
-            hmApi.offer(player, hmApi.getSystemShopId(), item, price);
-        } catch (NotEnoughItemsException e) {
-            HMI18n.send(sender, "command.not-enough-item-in-hand");
-        }catch (NotEnoughMoneyException e){
-            HMI18n.send(sender, "command.not-enough-money");
-        } catch (NotEnoughSpaceException e) {
-            HMI18n.send(sender, "command.not-enough-space");
-        }
-
+        hmApi.offer(player, hmApi.getSystemShopId(), item, price).thenAccept(
+                (result) -> {
+                    switch (result.reason()) {
+                        case SUCCESS -> HMI18n.sendPlayerSync(((Player) sender).getUniqueId(), "command.offer.success", result.itemId().orElse(-1));
+                        case NOT_ENOUGH_ITEMS -> HMI18n.sendPlayerSync(((Player) sender).getUniqueId(), "command.not-enough-item-in-hand");
+                        case NOT_ENOUGH_MONEY -> HMI18n.sendPlayerSync(((Player) sender).getUniqueId(), "command.not-enough-money");
+                        case NOT_ENOUGH_SPACE -> HMI18n.sendPlayerSync(((Player) sender).getUniqueId(), "command.not-enough-space");
+                        case TASK_FAILED -> HMI18n.sendPlayerSync(((Player) sender).getUniqueId(), "command.task-failed");
+                        case DATABASE_ERROR -> HMI18n.sendPlayerSync(((Player) sender).getUniqueId(), "command.database-error");
+                        case INVALID_PRICE -> HMI18n.sendPlayerSync(((Player) sender).getUniqueId(), "command.invalid-price");
+                        case UNKNOWN -> HMI18n.sendPlayerSync(((Player) sender).getUniqueId(), "command.unknown-error");
+                    }
+                }
+        );
     }
 
     @Override

@@ -1,4 +1,9 @@
 command:
+  unknown-error: Unknown error
+  database-error: 'Database error'
+  task-failed: "Error getting task status"
+  offer:
+    success: "Offer created: %s"
   not-enough-space: "Not enough space"
   not-enough-money: "You don't have enough money to do that."
   only-player-can-do: "Only player can do this"

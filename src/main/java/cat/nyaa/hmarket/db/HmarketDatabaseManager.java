@@ -143,7 +143,7 @@ public class HmarketDatabaseManager {
         return cat.nyaa.aolib.utils.DatabaseUtils.executeQueryAsync(connection, plugin, "getAllShopItems.sql", databaseExecutor, (rs) -> {
             try {
                 if (rs.next()) {
-                    return Optional.of( rs.getInt(1));
+                    return Optional.of(rs.getInt(1));
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -156,13 +156,13 @@ public class HmarketDatabaseManager {
         return cat.nyaa.aolib.utils.DatabaseUtils.executeQueryAsync(connection, plugin, "getShopItemCountByOwner.sql", databaseExecutor, (rs) -> {
             try {
                 if (rs.next()) {
-                    return Optional.of( rs.getInt(1));
+                    return Optional.of(rs.getInt(1));
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
             return Optional.empty();
-        }, marketId.toString(),ownerId.toString());
+        }, marketId.toString(), ownerId.toString());
     }
 
 }

@@ -10,7 +10,7 @@ public class HMMainCommand extends CommandReceiver {
     private final CommandManager commandManager;
 
     public HMMainCommand(CommandManager commandManager, HMI18n i18n) {
-        super(commandManager.getPlugin(),  i18n);
+        super(commandManager.getPlugin(), i18n);
         this.commandManager = commandManager;
     }
 

@@ -10,11 +10,11 @@ public class CommandManager {
     public final HMMainCommand mainCommand;
     private final Hmarket plugin;
 
-    public CommandManager(Hmarket plugin, HMI18n i18n){
+    public CommandManager(Hmarket plugin, HMI18n i18n) {
         this.plugin = plugin;
 
-        this.marketCommand = new HMMarketCommand(this,i18n);
-        this.mainCommand = new HMMainCommand(this,i18n);
+        this.marketCommand = new HMMarketCommand(this, i18n);
+        this.mainCommand = new HMMainCommand(this, i18n);
         regCommand(plugin, "hmarket_market", marketCommand);
         regCommand(plugin, "hmarket", mainCommand);
     }

@@ -3,9 +3,9 @@ package cat.nyaa.hmarket.api;
 import cat.nyaa.aolib.utils.TaskUtils;
 import cat.nyaa.ecore.EconomyCore;
 import cat.nyaa.hmarket.HMI18n;
+import cat.nyaa.hmarket.api.data.MarketOfferResult;
 import cat.nyaa.hmarket.api.exception.NotEnoughItemsException;
 import cat.nyaa.hmarket.api.exception.NotEnoughMoneyException;
-import cat.nyaa.hmarket.api.exception.NotEnoughSpaceException;
 import cat.nyaa.hmarket.config.HMConfig;
 import cat.nyaa.hmarket.data.ShopItemData;
 import cat.nyaa.hmarket.db.HmarketDatabaseManager;
@@ -44,41 +44,60 @@ public class HMarketAPI implements IMarketAPI {
     }
 
     @Override
-    public CompletableFuture<Optional<Integer>> offer(@NotNull Player player, @NotNull UUID marketId, @NotNull ItemStack items, double price) throws NotEnoughItemsException, NotEnoughMoneyException, NotEnoughSpaceException {
-        if (!InventoryUtils.hasItem(player, items, items.getAmount())) {
-            throw new NotEnoughItemsException();
-        }
-
-        if (economyCore.getPlayerBalance(player.getUniqueId()) < getListingFee(marketId)) {
-            throw new NotEnoughMoneyException();
-        }
-        if (!economyCore.withdrawPlayer(player.getUniqueId(), getListingFee(marketId))) {
-            throw new NotEnoughMoneyException();
-        }
-        if (!InventoryUtils.removeItem(player, items, items.getAmount())) {
-            throw new NotEnoughItemsException();
-        }
+    public CompletableFuture<MarketOfferResult> offer(@NotNull Player player, @NotNull UUID marketId, @NotNull ItemStack items, double price) {
         return hasEnoughSpace(marketId, player).thenApplyAsync(
                 OptBool -> {
-                    if (OptBool.isEmpty()) return Optional.empty();
-                    var bool = OptBool.get();
-                    if (bool) {
-                        try {
-                            return databaseManager.addItemsToShop(items, items.getAmount(), player.getUniqueId(), marketId, price)
-                                    .thenApply(itemId -> {
-                                        if (itemId.isEmpty()) {
-                                            HMInventoryUtils.giveOrDropItem(player, items);
-                                        }
-                                        return itemId;
-                                    }).get();
-                        } catch (InterruptedException | ExecutionException e) {
-                            e.printStackTrace();
-                            return Optional.empty();
-                        }
+                    if (OptBool.isEmpty())
+                        return MarketOfferResult.fail(MarketOfferResult.MarketOfferReason.DATABASE_ERROR);
+                    if (!OptBool.get()) {
+                        return MarketOfferResult.fail(MarketOfferResult.MarketOfferReason.NOT_ENOUGH_SPACE);
                     }
-                    return Optional.empty();
+                    var reason = TaskUtils.async.callSyncAndGet(
+                            () -> {
+                                var fee = getListingFee(marketId);
+                                if (price <= 0) {
+                                    return MarketOfferResult.MarketOfferReason.INVALID_PRICE;
+                                }
+                                if (!InventoryUtils.hasItem(player, items, items.getAmount())) {
+                                    return MarketOfferResult.MarketOfferReason.NOT_ENOUGH_ITEMS;
+                                }
+                                if (economyCore.getPlayerBalance(player.getUniqueId()) < fee) {
+                                    return MarketOfferResult.MarketOfferReason.NOT_ENOUGH_MONEY;
+                                }
+                                if (!InventoryUtils.removeItem(player, items, items.getAmount())) {
+                                    return MarketOfferResult.MarketOfferReason.NOT_ENOUGH_ITEMS;
+                                }
+                                if (!economyCore.withdrawPlayer(player.getUniqueId(), fee)) {
+                                    return MarketOfferResult.MarketOfferReason.NOT_ENOUGH_MONEY;
+                                } else {
+                                    economyCore.depositSystemVault(fee);
+                                    return MarketOfferResult.MarketOfferReason.SUCCESS;
+                                }
+                            }
+                    );
+                    if (reason != MarketOfferResult.MarketOfferReason.SUCCESS) {
+                        return MarketOfferResult.fail(reason);
+                    }
+                    try {
+                        var OptItemId = databaseManager.addItemsToShop(items, items.getAmount(), player.getUniqueId(), marketId, price)
+                                .thenApply(itemId -> {
+                                    if (itemId.isEmpty()) {
+                                        HMInventoryUtils.giveOrDropItem(player, items);
+                                    }
+                                    return itemId;
+                                }).get();
+                        if (OptItemId.isEmpty())
+                            return MarketOfferResult.fail(MarketOfferResult.MarketOfferReason.DATABASE_ERROR);
+                        return MarketOfferResult.success(OptItemId.get());
+                    } catch (InterruptedException | ExecutionException e) {
+                        e.printStackTrace();
+                    }
+                    return MarketOfferResult.fail(MarketOfferResult.MarketOfferReason.TASK_FAILED);
                 }
-        );
+        ).thenApply((MarketOfferResult result) -> {
+            if (result.isSuccess() || result.itemId().isPresent()) onShopOffer(player, marketId, items, price);
+            return result;
+        });
 
     }
 

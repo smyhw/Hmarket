@@ -47,26 +47,26 @@ fee: # one time fees for each trade platform
     public double feeAuction = 100;
     @Serializable(name = "fee.request")
     public double feeRequest = 50;
-/*
-storage: # storage fee for each trade platform, with free days before start to charge storage fee
-  market:
-    freedays: 1 # free for 1 day, after 24 hours start to charge storage fee
-    base: 0 # fixed amount to charge per itemstack
-    percent: 10 # based on unit price per itemstack. E.g., one itemstack cost 100, after 24 hours (1 free day) on the global market, it charges seller 10 every day until sold out or seller take it off
-  signshop:
-    freedays: -1 # unlimited
-    base: 0
-    percent: 0
-  escrow:
-    freedays: 1
-    base: 0
-    percent: 10
-  # auction does not require temp storage
-  request:
-    freedays: 7
-    base: 1
-    percent: 0
- */
+    /*
+    storage: # storage fee for each trade platform, with free days before start to charge storage fee
+      market:
+        freedays: 1 # free for 1 day, after 24 hours start to charge storage fee
+        base: 0 # fixed amount to charge per itemstack
+        percent: 10 # based on unit price per itemstack. E.g., one itemstack cost 100, after 24 hours (1 free day) on the global market, it charges seller 10 every day until sold out or seller take it off
+      signshop:
+        freedays: -1 # unlimited
+        base: 0
+        percent: 0
+      escrow:
+        freedays: 1
+        base: 0
+        percent: 10
+      # auction does not require temp storage
+      request:
+        freedays: 7
+        base: 1
+        percent: 0
+     */
     @Serializable(name = "storage.market.freedays")
     public int storageMarketFreedays = 1;
     @Serializable(name = "storage.market.base")
