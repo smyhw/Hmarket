@@ -88,4 +88,10 @@ public final class Hmarket extends JavaPlugin {
         }
         instance = null;
     }
+
+    public void onReload() {
+        onDisable();
+        onLoad();
+        onEnable();
+    }
 }

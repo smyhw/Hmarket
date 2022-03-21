@@ -19,6 +19,12 @@ public class HMMainCommand extends CommandReceiver {
         commandManager.marketCommand.view(sender, args);
     }
 
+    @SubCommand(value = "reload", permission = "hmarket.reload")
+    public void reload(CommandSender sender, Arguments args) {
+        commandManager.getPlugin().onReload();
+        sender.sendMessage("HMarket reloaded.");
+    }
+
     @Override
     public String getHelpPrefix() {
         return "";

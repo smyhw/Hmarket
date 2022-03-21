@@ -22,3 +22,6 @@ permissions:
   hmarket.mall:
     description: "market"
     default: true
+  hmarket.reload:
+    description: "reload"
+    default: op
