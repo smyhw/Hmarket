@@ -4,6 +4,7 @@ import cat.nyaa.aolib.utils.TaskUtils;
 import cat.nyaa.ecore.EconomyCore;
 import cat.nyaa.ecore.ServiceFeePreference;
 import cat.nyaa.hmarket.HMI18n;
+import cat.nyaa.hmarket.Hmarket;
 import cat.nyaa.hmarket.api.data.MarketOfferResult;
 import cat.nyaa.hmarket.api.exception.NotEnoughItemsException;
 import cat.nyaa.hmarket.api.exception.NotEnoughMoneyException;
@@ -19,10 +20,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -258,6 +256,7 @@ public class HMarketAPI implements IMarketAPI {
             }
             if (!keepItems) {
                 databaseManager.removeShopItem(shopItemData.itemId());
+                logInfo("Item " + shopItemData.itemId() + " removed from shop " + shopItemData.market());
             } else {
                 databaseManager.setItemUpdateTime(shopItemData.itemId(), now);
             }
@@ -280,11 +279,19 @@ public class HMarketAPI implements IMarketAPI {
                     var balance = economyCore.getPlayerBalance(UUID.fromString(shopItemData.owner()));
                     if (economyCore.withdrawPlayer(UUID.fromString(shopItemData.owner()), fee)) {
                         economyCore.depositSystemVault(fee);
+                        logInfo("[item update]["+TimeUtils.getUnixTimeStampNow()+"] " + shopItemData.owner() + " paid " + fee + " for storage fee. shop id:" + shopItemData.market());
                         return true;
                     }
+                    logInfo("[item update]["+TimeUtils.getUnixTimeStampNow()+"] " + shopItemData.owner() + " not enough money to pay storage fee("+fee+"). shop id:" + shopItemData.market());
                     return !(balance < fee);
                 }
         );
+    }
+
+    private void logInfo(String message) {
+        var plugin = Hmarket.getInstance();
+        if (plugin == null) return;
+        TaskUtils.async.callSync(() -> plugin.getLogger().info(message));
     }
 }
 

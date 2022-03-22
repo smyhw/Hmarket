@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
-public record MarketOfferResult(Optional<Integer> itemId, MarketOfferReason reason) {
+public record MarketOfferResult(@NotNull Optional<Integer> itemId, @NotNull MarketOfferReason reason) {
     @Contract("_ -> new")
     public static @NotNull MarketOfferResult fail(MarketOfferReason reason) {
         if (reason == MarketOfferReason.SUCCESS) {
