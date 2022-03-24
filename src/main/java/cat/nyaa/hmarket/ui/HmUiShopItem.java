@@ -15,12 +15,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public class HmUiShopItem implements IClickableUiItem {
-    private final Runnable updateCallback;
     private final ShopItemData itemData;
 
-    public HmUiShopItem(ShopItemData shopItemData, Runnable UpdateCallback) {
+    public HmUiShopItem(ShopItemData shopItemData) {
         this.itemData = shopItemData;
-        this.updateCallback = UpdateCallback;
     }
 
     @Override
@@ -38,16 +36,13 @@ public class HmUiShopItem implements IClickableUiItem {
         var hMarketAPI = Hmarket.getAPI();
         if (hMarketAPI == null) return;
 
-        hMarketAPI.buy(player, itemData.itemId(), amount).thenAccept((marketBuyResult) -> {
+        hMarketAPI.buy(player,itemData.market(), itemData.itemId(), amount).thenAccept((marketBuyResult) -> {
             switch (marketBuyResult.getStatus()) {
                 case SUCCESS -> HMI18n.sendPlayerSync(player.getUniqueId(), "info.ui.market.buy_success");
                 case OUT_OF_STOCK -> HMI18n.sendPlayerSync(player.getUniqueId(), "info.ui.market.out_of_stock");
-                case ITEM_NOT_FOUND -> HMI18n.sendPlayerSync(player.getUniqueId(), "info.ui.market.item_not_found", itemData.itemId());
+                case WRONG_MARKET,ITEM_NOT_FOUND -> HMI18n.sendPlayerSync(player.getUniqueId(), "info.ui.market.item_not_found", itemData.itemId());
                 case NOT_ENOUGH_MONEY -> HMI18n.sendPlayerSync(player.getUniqueId(), "info.ui.market.not_enough_money");
                 case TASK_FAILED, TRANSACTION_ERROR, CANNOT_REMOVE_ITEM -> HMI18n.sendPlayerSync(player.getUniqueId(), "info.ui.market.buy_failed");
-            }
-            if (marketBuyResult.isModified()) {
-                TaskUtils.async.callSync(updateCallback);
             }
         });
     }

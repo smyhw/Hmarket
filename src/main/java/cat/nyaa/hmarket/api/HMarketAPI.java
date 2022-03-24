@@ -13,6 +13,7 @@ import cat.nyaa.hmarket.config.HMConfig;
 import cat.nyaa.hmarket.data.ShopItemData;
 import cat.nyaa.hmarket.db.HmarketDatabaseManager;
 import cat.nyaa.hmarket.utils.HMInventoryUtils;
+import cat.nyaa.hmarket.utils.HMUiUtils;
 import cat.nyaa.hmarket.utils.TimeUtils;
 import cat.nyaa.nyaacore.Message;
 import cat.nyaa.nyaacore.utils.InventoryUtils;
@@ -183,6 +184,7 @@ public class HMarketAPI implements IMarketAPI {
         if (marketId.equals(systemShopId)) {
             new Message(HMI18n.format("info.market.sell", player.getName())).append(items).broadcast();
         }
+        HMUiUtils.updateShopUi(marketId);
     }
 
     public double getListingFee(@NotNull UUID marketId) {
@@ -213,12 +215,16 @@ public class HMarketAPI implements IMarketAPI {
     }
 
     @Override
-    public CompletableFuture<MarketBuyResult> buy(@NotNull Player player, int itemId, int amount) {
+    public CompletableFuture<MarketBuyResult> buy(@NotNull Player player, UUID marketId, int itemId, int amount) {
         return getShopItemData(itemId).thenApplyAsync(result -> {
             if (!result.isSuccess()) return MarketBuyResult.fail(MarketBuyResult.MarketBuyStatus.ITEM_NOT_FOUND);
             var OptShopItemData = result.data();
             if (OptShopItemData.isEmpty()) return MarketBuyResult.fail(MarketBuyResult.MarketBuyStatus.ITEM_NOT_FOUND);
             var shopItemData = OptShopItemData.get();
+
+            if(!shopItemData.market().equals(marketId)){
+                return MarketBuyResult.fail(MarketBuyResult.MarketBuyStatus.WRONG_MARKET);
+            }
 
             var checkBuy = TaskUtils.async.callSyncAndGet(() -> {
                 if (shopItemData.amount() < amount) {
@@ -272,8 +278,10 @@ public class HMarketAPI implements IMarketAPI {
                                 }
                         );
                         trade.setModified(true);
+                        HMUiUtils.updateShopUi(marketId);
                         return trade;
                     }
+                    HMUiUtils.updateShopUi(marketId);
                     return trade;
                 }).get();
             } catch (InterruptedException | ExecutionException e) {

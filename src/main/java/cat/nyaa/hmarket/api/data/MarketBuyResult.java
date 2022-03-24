@@ -51,6 +51,7 @@ public class MarketBuyResult {
         TASK_FAILED,
         ITEM_NOT_FOUND,
         TRANSACTION_ERROR,
+        WRONG_MARKET,
         CANNOT_REMOVE_ITEM
     }
 }

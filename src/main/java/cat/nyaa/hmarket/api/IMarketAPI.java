@@ -18,7 +18,7 @@ public interface IMarketAPI {
 
     CompletableFuture<MarketOfferResult> offer(Player player, UUID marketId, ItemStack items, double price) throws NotEnoughItemsException, NotEnoughMoneyException, NotEnoughSpaceException;
 
-    CompletableFuture<MarketBuyResult> buy(Player player, int itemId, int amount);
+    CompletableFuture<MarketBuyResult> buy(Player player,UUID marketId, int itemId, int amount);
 
     CompletableFuture<List<ShopItemData>> getShopItems(UUID marketId);
 

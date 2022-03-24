@@ -3,11 +3,9 @@ package cat.nyaa.hmarket.ui;
 import cat.nyaa.aolib.aoui.IBaseUI;
 import cat.nyaa.aolib.aoui.PageUI;
 import cat.nyaa.aolib.aoui.item.IUiItem;
-import cat.nyaa.aolib.network.data.DataClickType;
 import cat.nyaa.aolib.utils.TaskUtils;
 import cat.nyaa.hmarket.Hmarket;
 import com.google.common.collect.Lists;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -21,20 +19,13 @@ public class HMPageUi extends PageUI {
         this.shopId = shopId;
         updateShopItem();
     }
-
-
-    private void updateShopItem() {
+    public void updateShopItem() {
         var hmApi = Hmarket.getAPI();
         if (hmApi == null) return;
         hmApi.getShopItems(shopId).thenAccept((items) -> TaskUtils.async.callSyncAndGet(() -> {
             this.setAllUiItem(
-                    items.stream().map((item) -> (IUiItem) new HmUiShopItem(item, this::updateShopItem)).toList());
+                    items.stream().map((item) -> (IUiItem) new HmUiShopItem(item)).toList());
             return null;
         }));
-    }
-
-    @Override
-    public void onWindowClick(int slotNum, int buttonNum, DataClickType clickType, Player player) {
-        super.onWindowClick(slotNum, buttonNum, clickType, player);
     }
 }
