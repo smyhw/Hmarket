@@ -15,7 +15,6 @@ import java.util.function.Consumer;
 
 public class HMPageUi extends PageUI {
     private final UUID shopId;
-    private boolean locked;
 
     public HMPageUi(UUID shopId, Consumer<IBaseUI> updateConsumer, @NotNull String uiTitle) {
         super(Lists.newArrayList(), updateConsumer, uiTitle);
@@ -23,23 +22,19 @@ public class HMPageUi extends PageUI {
         updateShopItem();
     }
 
-    public void setLocked(boolean locked) {
-        this.locked = locked;
-    }
 
     private void updateShopItem() {
         var hmApi = Hmarket.getAPI();
         if (hmApi == null) return;
         hmApi.getShopItems(shopId).thenAccept((items) -> TaskUtils.async.callSyncAndGet(() -> {
             this.setAllUiItem(
-                    items.stream().map((item) -> (IUiItem) new HmUiShopItem(item, this::updateShopItem, this::setLocked)).toList());
+                    items.stream().map((item) -> (IUiItem) new HmUiShopItem(item, this::updateShopItem)).toList());
             return null;
         }));
     }
 
     @Override
     public void onWindowClick(int slotNum, int buttonNum, DataClickType clickType, Player player) {
-        if (this.locked) return;
         super.onWindowClick(slotNum, buttonNum, clickType, player);
     }
 }

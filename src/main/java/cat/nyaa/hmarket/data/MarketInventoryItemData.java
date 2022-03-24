@@ -1,5 +1,7 @@
 package cat.nyaa.hmarket.data;
 
-public record MarketInventoryItemData(int itemId, String marketUUID, String itemNbt) {
+import java.util.UUID;
+
+public record MarketInventoryItemData(int itemId, UUID marketUUID, String itemNbt) {
 
 }

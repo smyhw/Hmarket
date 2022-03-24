@@ -40,7 +40,7 @@ public class HMMarketCommand extends CommandReceiver {
         }
         var hmApi = commandManager.getPlugin().getHMarketAPI();
         if (hmApi == null) return;
-        var price = HMMathUtils.round(args.nextDouble(),2);
+        var price = HMMathUtils.round(args.nextDouble(), 2);
         if (price <= 0) {
             HMI18n.send(sender, "command.invalid-price");
             return;
@@ -52,7 +52,7 @@ public class HMMarketCommand extends CommandReceiver {
         }
         hmApi.offer(player, hmApi.getSystemShopId(), item, price).thenAccept(
                 (result) -> {
-                    switch (result.reason()) {
+                    switch (result.status()) {
                         case SUCCESS -> HMI18n.sendPlayerSync(((Player) sender).getUniqueId(), "command.offer.success", result.itemId().orElse(-1));
                         case NOT_ENOUGH_ITEMS -> HMI18n.sendPlayerSync(((Player) sender).getUniqueId(), "command.not-enough-item-in-hand");
                         case NOT_ENOUGH_MONEY -> HMI18n.sendPlayerSync(((Player) sender).getUniqueId(), "command.not-enough-money");
@@ -60,7 +60,6 @@ public class HMMarketCommand extends CommandReceiver {
                         case TASK_FAILED -> HMI18n.sendPlayerSync(((Player) sender).getUniqueId(), "command.task-failed");
                         case DATABASE_ERROR -> HMI18n.sendPlayerSync(((Player) sender).getUniqueId(), "command.database-error");
                         case INVALID_PRICE -> HMI18n.sendPlayerSync(((Player) sender).getUniqueId(), "command.invalid-price");
-                        case UNKNOWN -> HMI18n.sendPlayerSync(((Player) sender).getUniqueId(), "command.unknown-error");
                     }
                 }
         );

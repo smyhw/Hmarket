@@ -1,5 +1,6 @@
 package cat.nyaa.hmarket.api;
 
+import cat.nyaa.hmarket.api.data.MarketBuyResult;
 import cat.nyaa.hmarket.api.data.MarketOfferResult;
 import cat.nyaa.hmarket.api.exception.NotEnoughItemsException;
 import cat.nyaa.hmarket.api.exception.NotEnoughMoneyException;
@@ -17,9 +18,7 @@ public interface IMarketAPI {
 
     CompletableFuture<MarketOfferResult> offer(Player player, UUID marketId, ItemStack items, double price) throws NotEnoughItemsException, NotEnoughMoneyException, NotEnoughSpaceException;
 
-    CompletableFuture<Boolean> buy(Player player, int itemId, int amount);
-
-    CompletableFuture<Boolean> buy(Player player, ShopItemData itemData, int amount) throws NotEnoughMoneyException, NotEnoughItemsException;
+    CompletableFuture<MarketBuyResult> buy(Player player, int itemId, int amount);
 
     CompletableFuture<List<ShopItemData>> getShopItems(UUID marketId);
 

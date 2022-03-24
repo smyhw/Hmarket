@@ -27,6 +27,7 @@ info:
       owner: "Owner: %s"
       owner_item_back: "Click to get your item back"
     market:
+      item_not_found: "Item %s not found"
       buy_failed: "Buy failed"
       buy_success: "buy success"
       out_of_stock: "Out of stock"
