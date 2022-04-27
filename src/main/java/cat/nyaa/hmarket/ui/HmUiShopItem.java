@@ -1,28 +1,41 @@
 package cat.nyaa.hmarket.ui;
 
+import cat.nyaa.aolib.aoui.data.WindowClickData;
 import cat.nyaa.aolib.aoui.item.IClickableUiItem;
 import cat.nyaa.aolib.network.data.DataClickType;
-import cat.nyaa.aolib.utils.TaskUtils;
 import cat.nyaa.hmarket.HMI18n;
 import cat.nyaa.hmarket.Hmarket;
-import cat.nyaa.hmarket.data.ShopItemData;
+import cat.nyaa.hmarket.db.data.ShopItemData;
+import cat.nyaa.hmarket.ui.data.MarketUiItemNamespacedKey;
 import cat.nyaa.hmarket.utils.HMMathUtils;
+import cat.nyaa.hmarket.utils.TimeUtils;
 import cat.nyaa.nyaacore.utils.ItemStackUtils;
 import com.google.common.collect.Lists;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.NotNull;
 
 public class HmUiShopItem implements IClickableUiItem {
     private final ShopItemData itemData;
+    private final long itemTime;
 
-    public HmUiShopItem(ShopItemData shopItemData) {
+
+    public HmUiShopItem(@NotNull ShopItemData shopItemData) {
         this.itemData = shopItemData;
+        this.itemTime = TimeUtils.getUnixTimeStampNow();
     }
 
     @Override
-    public void onClick(int slotNum, int buttonNum, DataClickType clickType, Player player) {
+    public void onClick(WindowClickData clickData, Player player) {
+        var clickType = clickData.clickType();
+        var buttonNum = clickData.buttonNum();
+        var carriedItem = clickData.carriedItem();
+        if (carriedItem == null) return;
+        if (!checkCarriedItem(carriedItem)) return;
+
         if (clickType == DataClickType.PICKUP && buttonNum == 0) {
             onBuy(player, 1);
             return;
@@ -30,26 +43,31 @@ public class HmUiShopItem implements IClickableUiItem {
         if (clickType == DataClickType.QUICK_MOVE && buttonNum == 0) {
             onBuy(player, itemData.amount());
         }
+
+    }
+
+    private boolean checkCarriedItem(ItemStack carriedItem) {
+        var namespacedKey = MarketUiItemNamespacedKey.getInstanceNullable();
+        if (namespacedKey == null) return false;
+        if (!carriedItem.hasItemMeta()) return false;
+        var meta = carriedItem.getItemMeta();
+        if (meta == null) return false;
+        var carriedItemId = meta.getPersistentDataContainer().get(namespacedKey.itemId(), PersistentDataType.INTEGER);
+        var carriedItemMarketId = meta.getPersistentDataContainer().get(namespacedKey.MarketId(), PersistentDataType.STRING);
+        var carriedItemTime = meta.getPersistentDataContainer().get(namespacedKey.ItemTime(), PersistentDataType.LONG);
+        return carriedItemId != null &&
+                carriedItemMarketId != null &&
+                carriedItemTime != null &&
+                carriedItemId.equals(itemData.itemId()) &&
+                carriedItemMarketId.equals(itemData.market().toString()) &&
+                carriedItemTime == itemTime;
     }
 
     private void onBuy(Player player, int amount) {
         var hMarketAPI = Hmarket.getAPI();
         if (hMarketAPI == null) return;
 
-        hMarketAPI.buy(player,itemData.market(), itemData.itemId(), amount).thenAccept((marketBuyResult) -> {
-            switch (marketBuyResult.getStatus()) {
-                case SUCCESS -> HMI18n.sendPlayerSync(player.getUniqueId(), "info.ui.market.buy_success");
-                case OUT_OF_STOCK -> HMI18n.sendPlayerSync(player.getUniqueId(), "info.ui.market.out_of_stock");
-                case WRONG_MARKET,ITEM_NOT_FOUND -> HMI18n.sendPlayerSync(player.getUniqueId(), "info.ui.market.item_not_found", itemData.itemId());
-                case NOT_ENOUGH_MONEY -> HMI18n.sendPlayerSync(player.getUniqueId(), "info.ui.market.not_enough_money");
-                case TASK_FAILED, TRANSACTION_ERROR, CANNOT_REMOVE_ITEM -> HMI18n.sendPlayerSync(player.getUniqueId(), "info.ui.market.buy_failed");
-            }
-        });
-    }
-
-    @Override
-    public void onClick(DataClickType clickType, Player player) {
-
+        hMarketAPI.getMarketAPI().commandBuy(player, itemData.market(), itemData.itemId(), amount);
     }
 
     @Override
@@ -65,13 +83,18 @@ public class HmUiShopItem implements IClickableUiItem {
             if (lore == null) lore = Lists.newArrayList();
             lore.add(HMI18n.format("info.ui.item.owner", ownerName == null ? itemData.owner() : ownerName));
             lore.add(HMI18n.format("info.ui.item.price", itemData.price()));
-            lore.add(HMI18n.format("info.ui.item.tax", api.getFeeRate(itemData) * 100.0, HMMathUtils.round((itemData.price() * (1.0 + api.getFeeRate(itemData))), 2)));
+            lore.add(HMI18n.format("info.ui.item.tax", api.getMarketAPI().getFeeRate(itemData) * 100.0, HMMathUtils.round((itemData.price() * (1.0 + api.getMarketAPI().getFeeRate(itemData))), 2)));
             if (itemData.owner().equals(player.getUniqueId())) {
                 lore.add(HMI18n.format("info.ui.item.owner_item_back"));
             } else {
                 lore.add(HMI18n.format("info.ui.item.buy_item"));
             }
             meta.setLore(lore);
+            MarketUiItemNamespacedKey.getInstance().ifPresent(namespacedKey -> {
+                meta.getPersistentDataContainer().set(namespacedKey.itemId(), PersistentDataType.INTEGER, itemData.itemId());
+                meta.getPersistentDataContainer().set(namespacedKey.MarketId(), PersistentDataType.STRING, itemData.market().toString());
+                meta.getPersistentDataContainer().set(namespacedKey.ItemTime(), PersistentDataType.LONG, itemTime);
+            });
             item.setItemMeta(meta);
         }
         return item;

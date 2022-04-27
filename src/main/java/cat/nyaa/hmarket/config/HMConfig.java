@@ -128,6 +128,9 @@ timers:
     @Serializable(name = "timers.request.interval")
     public int timerRequestInterval = 60;
 
+    @Serializable(name = "sign.create.max-lock-time-ms")
+    public long maxSignCreateLockTime = 10000;
+
     public HMConfig(Hmarket plugin) {
         this.plugin = plugin;
         load();

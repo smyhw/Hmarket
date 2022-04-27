@@ -1,0 +1,1 @@
+INSERT INTO shop_location_v2 (blockX,blockY,blockZ,world,type,owner,market) VALUES (?,?,?,?,?,?,?);

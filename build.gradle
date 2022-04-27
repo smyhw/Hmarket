@@ -9,7 +9,7 @@ var minecraftVersionStr = "1.18.2"
 ext.pluginName = "Hmarket"
 ext.pluginname = ext.pluginName.toLowerCase()
 ext.majorVersion = 0
-ext.minorVersion = 7
+ext.minorVersion = 8
 ext.minecraftVersion = minecraftVersionStr
 sourceCompatibility = 17
 targetCompatibility = 17
@@ -42,7 +42,7 @@ dependencies {
 
     // other nyaa plugins
     compileOnly('cat.nyaa:nyaacore:9.0-SNAPSHOT')
-    compileOnly('cat.nyaa:aolib:1.0.48')
+    compileOnly('cat.nyaa:aolib:1.0.57')
     compileOnly('cat.nyaa:ecore:0.3.2')
 
     compileOnly 'org.jetbrains:annotations:23.0.0'

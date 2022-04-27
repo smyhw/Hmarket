@@ -39,7 +39,7 @@ public class HMUiUtils {
         if (Hmarket.uiManager == null) return null;
         var owner = Bukkit.getPlayer(shopId);
         String title;
-        if (shopId.equals(hmApi.getSystemShopId())) {
+        if (shopId.equals(MarketIdUtils.getSystemShopId())) {
             title = HMI18n.format("info.ui.title.shop.system");
         } else {
             title = HMI18n.format("info.ui.title.shop.user", owner == null ? shopId.toString() : owner.getName());

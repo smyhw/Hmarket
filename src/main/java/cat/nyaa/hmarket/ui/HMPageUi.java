@@ -19,13 +19,11 @@ public class HMPageUi extends PageUI {
         this.shopId = shopId;
         updateShopItem();
     }
+
     public void updateShopItem() {
         var hmApi = Hmarket.getAPI();
         if (hmApi == null) return;
-        hmApi.getShopItems(shopId).thenAccept((items) -> TaskUtils.async.callSyncAndGet(() -> {
-            this.setAllUiItem(
-                    items.stream().map((item) -> (IUiItem) new HmUiShopItem(item)).toList());
-            return null;
-        }));
+        hmApi.getMarketAPI().getShopItems(shopId).thenAccept((items) -> TaskUtils.async.callSync(() ->
+                this.setAllUiItem(items.stream().map((item) -> (IUiItem) new HmUiShopItem(item)).toList())));
     }
 }

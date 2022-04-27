@@ -15,6 +15,6 @@ public class UpdateItemTask extends BukkitRunnable {
     public void run() {
         var api = Hmarket.getAPI();
         if (api == null) return;
-        api.updateItem(TimeUtils.getUnixTimeStampNow() - (delay * 50L), TimeUtils.getUnixTimeStampNow());
+        api.getMarketAPI().updateItem(TimeUtils.getUnixTimeStampNow() - (delay * 50L), TimeUtils.getUnixTimeStampNow());
     }
 }

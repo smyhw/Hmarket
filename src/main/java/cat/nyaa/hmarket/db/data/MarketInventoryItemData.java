@@ -1,4 +1,4 @@
-package cat.nyaa.hmarket.data;
+package cat.nyaa.hmarket.db.data;
 
 import java.util.UUID;
 

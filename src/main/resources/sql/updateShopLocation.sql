@@ -1,0 +1,1 @@
+UPDATE shop_location_v2 SET blockX=?,blockY=?,blockZ=?,world=?,type=?,owner=?,market=? WHERE blockX=?,blockY=?,blockZ=?,world=?;

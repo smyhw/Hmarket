@@ -36,11 +36,10 @@ public class HMI18n extends LanguageRepository {
 
     public static void sendPlayerSync(UUID playerId, String key, Object... args) {
         if (instance == null) return;
-        TaskUtils.async.callSyncAndGet(() -> {
+        TaskUtils.async.callSync(() -> {
                     var player = Bukkit.getPlayer(playerId);
-                    if (player == null) return null;
+                    if (player == null) return;
                     HMI18n.send(player, key, args);
-                    return null;
                 }
         );
     }

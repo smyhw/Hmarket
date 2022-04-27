@@ -1,6 +1,6 @@
 package cat.nyaa.hmarket.api;
 
-import cat.nyaa.hmarket.data.MarketInventoryItemData;
+import cat.nyaa.hmarket.db.data.MarketInventoryItemData;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 

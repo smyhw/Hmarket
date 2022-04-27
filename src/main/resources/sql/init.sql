@@ -11,15 +11,14 @@ CREATE TABLE IF NOT EXISTS shop_item
     updatedAt BIGINT NOT NULL,
     description TEXT
 );
-CREATE TABLE IF NOT EXISTS shop_location
+CREATE TABLE IF NOT EXISTS shop_location_v2
 (
-    locationId  INTEGER
-        PRIMARY KEY AUTOINCREMENT,
-    type VARCHAR NOT NULL,
-    blockX INTEGER NOT NULL,
-    blockY INTEGER NOT NULL,
-    blockZ INTEGER NOT NULL,
+    blockX  INTEGER NOT NULL,
+    blockY  INTEGER NOT NULL,
+    blockZ  INTEGER NOT NULL,
     world   VARCHAR NOT NULL,
+    type    VARCHAR NOT NULL,
     owner   VARCHAR NOT NULL,
-    market  VARCHAR NOT NULL
+    market  VARCHAR NOT NULL,
+    CONSTRAINT shop_location_id PRIMARY KEY (blockX, blockY, blockZ, world)
 );

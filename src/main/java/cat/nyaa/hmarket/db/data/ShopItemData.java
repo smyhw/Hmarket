@@ -1,7 +1,7 @@
-package cat.nyaa.hmarket.data;
+package cat.nyaa.hmarket.db.data;
 
 
-import cat.nyaa.hmarket.api.HMarketAPI;
+import cat.nyaa.hmarket.utils.MarketIdUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,8 +28,8 @@ public record ShopItemData(
                 rs.getInt("itemId"),
                 rs.getString("itemNbt"),
                 rs.getInt("amount"),
-                HMarketAPI.parseUUID(rs.getString("owner")),
-                HMarketAPI.parseMarketId(rs.getString("market")),
+                MarketIdUtils.parseUUID(rs.getString("owner")),
+                MarketIdUtils.parseMarketId(rs.getString("market")),
                 rs.getDouble("price"),
                 rs.getLong("createdAt"),
                 rs.getLong("updatedAt"),

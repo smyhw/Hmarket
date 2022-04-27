@@ -6,6 +6,7 @@ import cat.nyaa.hmarket.api.HMarketAPI;
 import cat.nyaa.hmarket.command.CommandManager;
 import cat.nyaa.hmarket.config.HMConfig;
 import cat.nyaa.hmarket.db.HmarketDatabaseManager;
+import cat.nyaa.hmarket.listener.HMListenerManager;
 import cat.nyaa.hmarket.task.HMTaskManager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -25,6 +26,7 @@ public final class Hmarket extends JavaPlugin {
     private HMI18n i18n;
     private CommandManager commandManager;
     private HMTaskManager taskManager;
+    private HMListenerManager listenerManager;
 
     public static Hmarket getInstance() {
         return instance;
@@ -60,6 +62,7 @@ public final class Hmarket extends JavaPlugin {
         this.commandManager = new CommandManager(this, i18n);
         databaseManager = new HmarketDatabaseManager(this);
         this.taskManager = new HMTaskManager(this);
+        this.listenerManager = new HMListenerManager(this);
     }
 
 
@@ -85,6 +88,10 @@ public final class Hmarket extends JavaPlugin {
         if (taskManager != null) {
             taskManager.destructor();
             taskManager = null;
+        }
+        if (listenerManager != null) {
+            listenerManager.destructor();
+            listenerManager = null;
         }
         instance = null;
     }

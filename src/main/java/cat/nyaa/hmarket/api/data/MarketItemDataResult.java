@@ -1,6 +1,6 @@
 package cat.nyaa.hmarket.api.data;
 
-import cat.nyaa.hmarket.data.ShopItemData;
+import cat.nyaa.hmarket.db.data.ShopItemData;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 

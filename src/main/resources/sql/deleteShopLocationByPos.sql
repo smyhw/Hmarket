@@ -1,0 +1,1 @@
+DELETE FROM shop_location_v2 WHERE blockX=? AND blockY=? AND blockZ=? AND world=?;
