@@ -13,6 +13,7 @@ command:
 info:
   database_error: "Database error"
   sign:
+    destroyed: "Sign destroyed"
     create_failed: "Failed to create, the limit may have been reached"
     created: "Sign created"
     occupied: 'Store space is occupied'
