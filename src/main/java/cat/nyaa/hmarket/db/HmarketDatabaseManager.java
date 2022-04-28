@@ -6,12 +6,15 @@ import cat.nyaa.hmarket.Hmarket;
 import cat.nyaa.hmarket.api.data.BlockLocationData;
 import cat.nyaa.hmarket.db.data.ShopItemData;
 import cat.nyaa.hmarket.db.data.ShopLocationData;
+import cat.nyaa.hmarket.utils.HMLogUtils;
 import cat.nyaa.hmarket.utils.TimeUtils;
 import cat.nyaa.nyaacore.utils.ItemStackUtils;
+import com.google.common.collect.Lists;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -27,7 +30,7 @@ public class HmarketDatabaseManager {
     public static final ExecutorService databaseExecutor =
             new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, databaseExecutorQueue);
     private final Connection connection;
-    private Hmarket plugin;
+    private final Hmarket plugin;
 
 
     public Hmarket getPlugin() {
@@ -35,7 +38,8 @@ public class HmarketDatabaseManager {
     }
 
     public HmarketDatabaseManager(Hmarket plugin) {
-
+        this.plugin = plugin;
+        HMLogUtils.logInfo("Connecting to database...");
         Optional<Connection> optConn = Optional.empty();
         try {
             optConn = DatabaseUtils.newSqliteJdbcConnection(plugin).get();
@@ -43,7 +47,7 @@ public class HmarketDatabaseManager {
             e.printStackTrace();
         }
         if (optConn.isEmpty()) {
-            throw new RuntimeException("init database error:Failed to connect to database");
+            throw new RuntimeException("Failed to connect to database");
         }
         this.connection = optConn.get();
         try {
@@ -60,14 +64,41 @@ public class HmarketDatabaseManager {
         return CompletableFuture.supplyAsync(supplier, databaseExecutor);
     }
 
-    private void initDatabase(Hmarket plugin) {
-        this.plugin = plugin;
-        DatabaseUtils.executeUpdateAsync(
-                connection,
-                plugin,
-                "init.sql",
-                databaseExecutor
-        );
+    private void initDatabase(@NotNull Hmarket plugin) {
+        HMLogUtils.logInfo("Initializing database...");
+        var res = plugin.getResource("sql/" + "init.sql");
+        if (res == null) {
+            throw new RuntimeException("Failed to load init.sql");
+        }
+        byte[] sqlBytes;
+        try {
+            sqlBytes = res.readAllBytes();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        List<String> sqlList = splitSql(sqlBytes);
+        try (var statement = connection.createStatement()) {
+            for (String sql : sqlList) {
+                statement.addBatch(sql);
+            }
+            statement.executeBatch();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    private @NotNull List<String> splitSql(byte @NotNull [] sqlBytes) {
+        List<String> result = Lists.newArrayList();
+        for (int i = 0, j = 0; i < sqlBytes.length; i++) {
+            if (sqlBytes[i] == ';' || i == sqlBytes.length - 1) {
+                var sql = new String(sqlBytes, j, i - j + 1);
+                j = i + 1;
+                if (sql.isEmpty() || sql.equals(";")) continue;
+                result.add(sql);
+            }
+        }
+        return result;
     }
 
     public void close() {

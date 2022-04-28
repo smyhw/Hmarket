@@ -1,8 +1,8 @@
 package cat.nyaa.hmarket.command.sub;
 
 import cat.nyaa.hmarket.HMI18n;
+import cat.nyaa.hmarket.Hmarket;
 import cat.nyaa.hmarket.api.data.BlockLocationData;
-import cat.nyaa.hmarket.command.CommandManager;
 import cat.nyaa.hmarket.utils.HMMathUtils;
 import cat.nyaa.hmarket.utils.MarketIdUtils;
 import cat.nyaa.nyaacore.ILocalizer;
@@ -14,15 +14,19 @@ import org.bukkit.block.Sign;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 public class HMSignShopCommand extends CommandReceiver {
 
-    private final CommandManager commandManager;
 
-    public HMSignShopCommand(@NotNull CommandManager commandManager, ILocalizer _i18n) {
-        super(commandManager.getPlugin(), _i18n);
-        this.commandManager = commandManager;
+    private final Hmarket plugin;
+
+    /**
+     * @param plugin for logging purpose only
+     * @param _i18n  i18n
+     */
+    public HMSignShopCommand(Hmarket plugin, ILocalizer _i18n) {
+        super(plugin, _i18n);
+        this.plugin = plugin;
     }
 
     @SubCommand(value = "sell", permission = "hmarket.shop")
@@ -31,7 +35,7 @@ public class HMSignShopCommand extends CommandReceiver {
             HMI18n.send(sender, "command.only-player-can-do");
             return;
         }
-        var hmApi = commandManager.getPlugin().getHMarketAPI();
+        var hmApi = Hmarket.getAPI();
         if (hmApi == null) return;
         var price = HMMathUtils.round(args.nextDouble(), 2);
         if (price <= 0 || price >= Integer.MAX_VALUE) {

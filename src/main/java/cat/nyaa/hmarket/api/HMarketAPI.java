@@ -5,7 +5,6 @@ import cat.nyaa.hmarket.api.impl.MarketImpl;
 import cat.nyaa.hmarket.api.impl.ShopLocationImpl;
 import cat.nyaa.hmarket.config.HMConfig;
 import cat.nyaa.hmarket.db.HmarketDatabaseManager;
-import cat.nyaa.hmarket.listener.HMSignShopListener;
 
 public class HMarketAPI {
 

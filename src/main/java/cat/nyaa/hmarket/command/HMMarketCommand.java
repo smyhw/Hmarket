@@ -1,6 +1,7 @@
 package cat.nyaa.hmarket.command;
 
 import cat.nyaa.hmarket.HMI18n;
+import cat.nyaa.hmarket.Hmarket;
 import cat.nyaa.hmarket.utils.HMMathUtils;
 import cat.nyaa.hmarket.utils.HMUiUtils;
 import cat.nyaa.hmarket.utils.MarketIdUtils;
@@ -38,7 +39,7 @@ public class HMMarketCommand extends CommandReceiver {
             HMI18n.send(sender, "command.only-player-can-do");
             return;
         }
-        var hmApi = commandManager.getPlugin().getHMarketAPI();
+        var hmApi = Hmarket.getAPI();
         if (hmApi == null) return;
         var price = HMMathUtils.round(args.nextDouble(), 2);
         if (price <= 0 || price >= Integer.MAX_VALUE) {

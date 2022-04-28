@@ -27,6 +27,7 @@ public final class Hmarket extends JavaPlugin {
     private CommandManager commandManager;
     private HMTaskManager taskManager;
     private HMListenerManager listenerManager;
+    private HMarketAPI api;
 
     public static Hmarket getInstance() {
         return instance;
@@ -38,8 +39,7 @@ public final class Hmarket extends JavaPlugin {
     }
 
     public @Nullable HMarketAPI getHMarketAPI() {
-        if (databaseManager == null || economyProvider == null || hmConfig == null) return null;
-        return new HMarketAPI(databaseManager, economyProvider, hmConfig);
+        return api;
     }
 
     @Override
@@ -63,6 +63,7 @@ public final class Hmarket extends JavaPlugin {
         databaseManager = new HmarketDatabaseManager(this);
         this.taskManager = new HMTaskManager(this);
         this.listenerManager = new HMListenerManager(this);
+        this.api = new HMarketAPI(databaseManager, economyProvider, hmConfig);
     }
 
 

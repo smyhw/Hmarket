@@ -13,7 +13,6 @@ public class HMMainCommand extends CommandReceiver {
     public HMMainCommand(CommandManager commandManager, HMI18n i18n) {
         super(commandManager.getPlugin(), i18n);
         this.commandManager = commandManager;
-        this.shop = new HMSignShopCommand(commandManager, i18n);
     }
 
     @SubCommand(value = "shop", permission = "hmarket.shop")
