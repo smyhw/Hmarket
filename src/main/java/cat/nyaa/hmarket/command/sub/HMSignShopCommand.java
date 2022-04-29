@@ -73,7 +73,7 @@ public class HMSignShopCommand extends CommandReceiver {
                     if (!locationData.owner().equals( player.getUniqueId())) {
                         HMI18n.send(sender, "command.shop.not-owner");
                     } else {
-                        hmApi.getMarketAPI().commandOffer(player, MarketIdUtils.getSystemShopId(), item, price);
+                        hmApi.getMarketAPI().commandOffer(player, player.getUniqueId(), item, price);
                     }
                 },
                 () -> HMI18n.send(sender, "command.invalid-target-location")
