@@ -42,7 +42,7 @@ dependencies {
 
     // other nyaa plugins
     compileOnly('cat.nyaa:nyaacore:9.0-SNAPSHOT')
-    compileOnly('cat.nyaa:aolib:1.0.59')
+    compileOnly('cat.nyaa:aolib:1.0.60')
     compileOnly('cat.nyaa:ecore:0.3.2')
 
     compileOnly 'org.jetbrains:annotations:23.0.0'
