@@ -1,4 +1,7 @@
 command:
+  shop:
+    not-owner: You are not the owner of this shop.
+  invalid-target-location: Invalid target location
   unknown-error: Unknown error
   database-error: 'Database error'
   task-failed: "Error getting task status"
