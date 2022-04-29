@@ -70,7 +70,7 @@ public class HMSignShopCommand extends CommandReceiver {
 
         hmApi.getShopLocationApi().getLocationData(blockLocationData).ifPresentOrElse(
                 locationData -> {
-                    if (locationData.owner() != player.getUniqueId()) {
+                    if (!locationData.owner().equals( player.getUniqueId())) {
                         HMI18n.send(sender, "command.shop.not-owner");
                     } else {
                         hmApi.getMarketAPI().commandOffer(player, MarketIdUtils.getSystemShopId(), item, price);
