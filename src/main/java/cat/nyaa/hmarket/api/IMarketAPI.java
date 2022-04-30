@@ -19,11 +19,12 @@ public interface IMarketAPI {
 
     CompletableFuture<MarketBuyResult> buy(Player player, UUID marketId, int itemId, int amount);
 
-    void commandBuy(@NotNull Player player, @NotNull UUID marketId, int itemId, int amount);
 
     CompletableFuture<List<ShopItemData>> getShopItems(UUID marketId);
 
     void updateItem(long begin, long now);
 
-    double getFeeRate(@NotNull ShopItemData shopItemData);
+    double getTaxRate(@NotNull ShopItemData shopItemData);
+
+    void commandBuy(@NotNull Player player, @NotNull UUID marketId, int itemId, int amount) ;
 }

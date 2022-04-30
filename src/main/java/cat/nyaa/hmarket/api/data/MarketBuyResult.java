@@ -32,6 +32,6 @@ public record MarketBuyResult(cat.nyaa.hmarket.api.data.MarketBuyResult.MarketBu
         ITEM_NOT_FOUND,
         TRANSACTION_ERROR,
         WRONG_MARKET,
-        CANNOT_BUY_ITEM
+         PLAYER_OWNS_ITEM, CANNOT_BUY_ITEM
     }
 }

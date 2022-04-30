@@ -83,7 +83,7 @@ public class HmUiShopItem implements IClickableUiItem {
             if (lore == null) lore = Lists.newArrayList();
             lore.add(HMI18n.format("info.ui.item.owner", ownerName == null ? itemData.owner() : ownerName));
             lore.add(HMI18n.format("info.ui.item.price", itemData.price()));
-            lore.add(HMI18n.format("info.ui.item.tax", api.getMarketAPI().getFeeRate(itemData) * 100.0, HMMathUtils.round((itemData.price() * (1.0 + api.getMarketAPI().getFeeRate(itemData))), 2)));
+            lore.add(HMI18n.format("info.ui.item.tax", api.getMarketAPI().getTaxRate(itemData) * 100.0, HMMathUtils.round((itemData.price() * (1.0 + api.getMarketAPI().getTaxRate(itemData))), 2)));
             if (itemData.owner().equals(player.getUniqueId())) {
                 lore.add(HMI18n.format("info.ui.item.owner_item_back"));
             } else {

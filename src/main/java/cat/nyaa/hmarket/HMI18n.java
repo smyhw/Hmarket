@@ -1,9 +1,11 @@
 package cat.nyaa.hmarket;
 
+import cat.nyaa.aolib.message.AoMessage;
 import cat.nyaa.aolib.utils.TaskUtils;
 import cat.nyaa.nyaacore.LanguageRepository;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -45,7 +47,14 @@ public class HMI18n extends LanguageRepository {
     }
 
     public static void send(@NotNull CommandSender recipient, String key, Object... args) {
-        recipient.sendMessage(format(key, args));
+        if (recipient instanceof Player player && !player.isOnline()) {
+            var aoMessage = AoMessage.getInstance();
+            if (aoMessage != null) {
+                aoMessage.sendMessageTo(player.getUniqueId(),format(key, args));
+            }
+        } else {
+            recipient.sendMessage(format(key, args));
+        }
     }
 
 

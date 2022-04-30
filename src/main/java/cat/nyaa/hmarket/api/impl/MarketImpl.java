@@ -128,80 +128,85 @@ public class MarketImpl implements IMarketAPI {
     @Override
     public CompletableFuture<MarketBuyResult> buy(@NotNull Player player, UUID marketId, int itemId, int amount) {
         var playerId = player.getUniqueId();
-        var paid = new AtomicDouble(0d);
+        var paidCost = new AtomicDouble(0d);
         var paidTax = new AtomicDouble(0d);
-        return getShopItemData(itemId).thenApplyAsync(result -> {
-
-            if (!result.isSuccess())
+        return marketApi.getDatabaseManager().getShopItemData(itemId).thenApplyAsync(optionalShopItemData -> {
+            if (optionalShopItemData.isEmpty())
                 return Pair.of(MarketBuyResult.fail(MarketBuyResult.MarketBuyStatus.ITEM_NOT_FOUND), null);
-            var OptShopItemData = result.data();
-            if (OptShopItemData.isEmpty())
-                return Pair.of(MarketBuyResult.fail(MarketBuyResult.MarketBuyStatus.ITEM_NOT_FOUND), null);
-            ShopItemData shopItemData = OptShopItemData.get();
+            ShopItemData shopItemData = optionalShopItemData.get();
 
             if (!shopItemData.market().equals(marketId)) {
                 return Pair.of(MarketBuyResult.fail(MarketBuyResult.MarketBuyStatus.WRONG_MARKET), shopItemData);
             }
+            if (shopItemData.amount() < amount) {// check amount
+                return Pair.of(MarketBuyResult.fail(MarketBuyResult.MarketBuyStatus.OUT_OF_STOCK), shopItemData);
+            }
+            if (shopItemData.owner().equals(playerId)) {
+                return Pair.of(MarketBuyResult.fail(MarketBuyResult.MarketBuyStatus.PLAYER_OWNS_ITEM), shopItemData);
+            }
 
             return Pair.of(TaskUtils.async.getSyncDefault(() -> {
-                if (shopItemData.amount() < amount) {// check amount
-                    return MarketBuyResult.fail(MarketBuyResult.MarketBuyStatus.OUT_OF_STOCK);
+                var cost = shopItemData.price() * amount;
+                var tax = cost * getTaxRate(shopItemData);
+                if (marketApi.getEconomyCore().getPlayerBalance(playerId) < cost + tax) {
+                    return MarketBuyResult.fail(MarketBuyResult.MarketBuyStatus.NOT_ENOUGH_MONEY);
                 }
-
-                if (!shopItemData.owner().equals(playerId)) {
-                    var freeRate = getFeeRate(shopItemData);
-                    var fee = shopItemData.price() * amount;
-                    var tax = fee * freeRate;
-                    if (marketApi.getEconomyCore().getPlayerBalance(playerId) < fee + tax) {
-                        return MarketBuyResult.fail(MarketBuyResult.MarketBuyStatus.NOT_ENOUGH_MONEY);
-                    }
-
-                    if (marketApi.getEconomyCore().withdrawPlayer(playerId, fee + tax)) {
-                        return MarketBuyResult.fail(MarketBuyResult.MarketBuyStatus.TRANSACTION_ERROR);
-                    }
-                    paid.set(fee + tax);
-                    paidTax.set(tax);
+                if (marketApi.getEconomyCore().withdrawPlayer(playerId, cost + tax)) {
+                    return MarketBuyResult.fail(MarketBuyResult.MarketBuyStatus.TRANSACTION_ERROR);
                 }
+                paidCost.set(cost);
+                paidTax.set(tax);
+
 
                 return MarketBuyResult.success();
             }, MarketBuyResult.fail(MarketBuyResult.MarketBuyStatus.TASK_FAILED)), shopItemData);
 
 
         }).thenCompose(pair -> {
-            if (!pair.getKey().isSuccess()) {
-                return CompletableFuture.completedFuture(pair.getKey());
-            }
             ShopItemData shopItemData = (cat.nyaa.hmarket.db.data.ShopItemData) pair.getValue();
 
             if (shopItemData == null) {
                 return CompletableFuture.completedFuture(MarketBuyResult.fail(MarketBuyResult.MarketBuyStatus.ITEM_NOT_FOUND));
             }
-            return marketApi.getDatabaseManager().buyItemFromMarket(marketId, itemId, amount, shopItemData.price()).thenApplyAsync((b) -> {
+
+            if (!pair.getKey().isSuccess()) {
+                if (pair.getKey().status() == MarketBuyResult.MarketBuyStatus.PLAYER_OWNS_ITEM) {// withdraw item
+                    return this.withdrawItem(player, shopItemData, amount);
+                }
+                return CompletableFuture.completedFuture(pair.getKey());
+            }
+
+
+            //remove item from market and add to player inventory
+            return marketApi.getDatabaseManager().buyItemFromMarket(marketId, itemId, amount, shopItemData.price(), shopItemData.itemNbt()).thenApplyAsync((b) -> {
                 if (b.isEmpty() || !b.get()) {
-                    if (!TaskUtils.async.getSyncDefault(() -> marketApi.getEconomyCore().depositPlayer(playerId, paid.get()), false)) {
-                        HMLogUtils.logWarning("Transaction Failed:Player " + playerId + " refund failed");
-                        HMLogUtils.logWarning("paid: " + paid.get());
+                    if (paidCost.get() > 0 || paidTax.get() > 0) {
+                        if (!TaskUtils.async.getSyncDefault(() -> marketApi.getEconomyCore().depositPlayer(playerId, paidCost.get() + paidTax.get()), false)) {
+                            HMLogUtils.logWarning("Transaction Failed:Player " + playerId + " refund failed");
+                            HMLogUtils.logWarning("cosy: " + paidCost.get() + ",tax:" + paidCost.get());
+                        }
                     }
                     return MarketBuyResult.fail(MarketBuyResult.MarketBuyStatus.CANNOT_BUY_ITEM);
                 }
                 var itemResult = TaskUtils.async.getSyncDefault(() -> {
-                    ItemStack itemStack = ItemStackUtils.itemFromBase64(shopItemData.itemNbt()).clone();
-                    itemStack.setAmount(amount);
-                    HMInventoryUtils.giveOrDropItem(player, itemStack);
-                    HMUiUtils.updateShopUi(marketId);
-                    if (!marketApi.getEconomyCore().depositSystemVault(paidTax.get())) {
-                        HMLogUtils.logWarning("Transaction Failed:Failed to deposit system vault");
-                        HMLogUtils.logWarning("amount to pay: " + paidTax.get());
-                        HMLogUtils.logWarning("from: " + playerId);
+                    ItemStack itemStack = giveItemAndUpdateShopSync(player, shopItemData.itemNbt(), marketId, amount);
+                    if (paidTax.get() > 0) {
+                        if (!marketApi.getEconomyCore().depositSystemVault(paidTax.get())) {
+                            HMLogUtils.logWarning("Transaction Failed:Failed to deposit system vault");
+                            HMLogUtils.logWarning("cost: " + paidTax.get());
+                            HMLogUtils.logWarning("from: " + playerId);
+                        }
                     }
-                    if (!marketApi.getEconomyCore().depositPlayer(shopItemData.owner(), paid.get() - paidTax.get())) {
-                        HMLogUtils.logWarning("Transaction Failed:Failed to deposit player " + shopItemData.owner());
-                        HMLogUtils.logWarning("amount to pay: " + (paid.get() - paidTax.get()));
-                        HMLogUtils.logWarning("from: " + playerId);
+                    if (paidCost.get() > 0) {
+                        if (!marketApi.getEconomyCore().depositPlayer(shopItemData.owner(), paidCost.get())) {
+                            HMLogUtils.logWarning("Transaction Failed:Failed to deposit player " + shopItemData.owner());
+                            HMLogUtils.logWarning("cost: " + (paidCost.get()));
+                            HMLogUtils.logWarning("from: " + playerId);
+                        }
                     }
                     onShopSold(player, shopItemData, itemStack, amount);
                     HMLogUtils.logInfo("Player " + playerId + " bought " + itemStack + " from market " + marketId);
-                    HMLogUtils.logInfo("Paid: " + paid.get() + " Tax: " + paidTax.get() + "," + shopItemData.owner() + " received: " + (paid.get() - paidTax.get()));
+                    HMLogUtils.logInfo("cost: " + paidCost.get() + " tax: " + paidTax.get() + "," + shopItemData.owner() + " received: " + (paidCost.get() - paidTax.get()));
                     return true;
                 }, false);
                 if (!itemResult) {
@@ -214,6 +219,32 @@ public class MarketImpl implements IMarketAPI {
             });
 
         });
+
+
+    }
+
+    private @NotNull ItemStack giveItemAndUpdateShopSync(@NotNull Player player, @NotNull String itemNbt, @NotNull UUID marketId, int amount) {
+        ItemStack itemStack = ItemStackUtils.itemFromBase64(itemNbt).clone();
+        itemStack.setAmount(amount);
+        HMInventoryUtils.giveOrDropItem(player, itemStack);
+        HMUiUtils.updateShopUi(marketId);
+        return itemStack;
+    }
+
+    private CompletableFuture<MarketBuyResult> withdrawItem(@NotNull Player player, @NotNull ShopItemData shopItemData, int amount) {
+        var playerId = player.getUniqueId();
+        return marketApi.getDatabaseManager().withdrawItemFromMarket(
+                        shopItemData.market(), playerId, shopItemData.itemId(), amount, shopItemData.itemNbt()
+                )
+                .thenApply(
+                        withdrawResult -> {
+                            if (withdrawResult.isEmpty() || !withdrawResult.get()) {
+                                return MarketBuyResult.fail(MarketBuyResult.MarketBuyStatus.CANNOT_BUY_ITEM);
+                            }
+                            giveItemAndUpdateShopSync(player, shopItemData.itemNbt(), shopItemData.market(), amount);
+                            return MarketBuyResult.success();
+                        }
+                );
 
 
     }
@@ -239,8 +270,8 @@ public class MarketImpl implements IMarketAPI {
 
 //    private void onShopSold(UUID marketId, int itemId, ItemStack itemStack, int amount, double price) {
 
-//    }
-
+    //    }
+    @Override
     public void commandBuy(@NotNull Player player, @NotNull UUID marketId, int itemId, int amount) {
         buy(player, marketId, itemId, amount).thenAccept((marketBuyResult) -> {
             switch (marketBuyResult.status()) {
@@ -251,6 +282,7 @@ public class MarketImpl implements IMarketAPI {
                 case NOT_ENOUGH_MONEY -> HMI18n.sendPlayerSync(player.getUniqueId(), "info.ui.market.not_enough_money");
                 case TASK_FAILED, TRANSACTION_ERROR, CANNOT_BUY_ITEM ->
                         HMI18n.sendPlayerSync(player.getUniqueId(), "info.ui.market.buy_failed");
+                case PLAYER_OWNS_ITEM -> HMI18n.sendPlayerSync(player.getUniqueId(), "info.ui.market.player_owns_item");
             }
         });
     }
@@ -283,7 +315,7 @@ public class MarketImpl implements IMarketAPI {
         return marketApi.getConfig().feeSignshop;
     }
 
-    public double getFeeRate(@NotNull UUID marketId) {
+    public double getTaxRate(@NotNull UUID marketId) {
         if (marketId.equals(MarketIdUtils.getSystemShopId())) {
             return marketApi.getConfig().taxMarket / 100.0;
         }
@@ -291,10 +323,9 @@ public class MarketImpl implements IMarketAPI {
     }
 
     @Override
-    public double getFeeRate(@NotNull ShopItemData shopItemData) {
-        return getFeeRate(shopItemData.market());
+    public double getTaxRate(@NotNull ShopItemData shopItemData) {
+        return getTaxRate(shopItemData.market());
     }
-
 
     public CompletableFuture<MarketItemDataResult> getShopItemData(int itemId) {
         return marketApi.getDatabaseManager().getShopItemData(itemId).thenApply(optShopItemData -> {

@@ -6,7 +6,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class HMInventoryUtils {
     public static void giveOrDropItem(Player player, ItemStack itemStack) {
-        if (InventoryUtils.hasEnoughSpace(player.getInventory(), itemStack)) {
+        if (player.isOnline() && InventoryUtils.hasEnoughSpace(player.getInventory(), itemStack)) {
             if (InventoryUtils.addItem(player.getInventory(), itemStack)) {
                 return;
             }
