@@ -36,6 +36,7 @@ info:
       owner: "Owner: %s"
       owner_item_back: "Click to get your item back"
     market:
+      withdraw_success: "Your item were successfully taken back."
       player_owns_item: "You cannot buy your own item"
       item_not_found: "Item %s not found"
       buy_failed: "Buy failed"

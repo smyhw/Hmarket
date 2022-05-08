@@ -228,7 +228,7 @@ public class HmarketDatabaseManager {
     }
 
 
-    public CompletableFuture<Optional<Boolean>> withdrawItemFromMarket(@NotNull UUID market,UUID owner, int itemId, int amount, String itemNbt) {
+    public CompletableFuture<Optional<Boolean>> withdrawItemFromMarket(@NotNull UUID market, @NotNull UUID owner, int itemId, int amount, String itemNbt) {
         return DatabaseUtils.executeUpdateAsync(connection, plugin, "withdrawItemFromMarket.sql", databaseExecutor,
                        amount,  itemId,market.toString(),owner.toString(), itemNbt,amount)
                 .thenApply((i) -> i.map(j -> (j) > 0));

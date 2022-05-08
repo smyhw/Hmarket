@@ -242,7 +242,7 @@ public class MarketImpl implements IMarketAPI {
                                 return MarketBuyResult.fail(MarketBuyResult.MarketBuyStatus.CANNOT_BUY_ITEM);
                             }
                             giveItemAndUpdateShopSync(player, shopItemData.itemNbt(), shopItemData.market(), amount);
-                            return MarketBuyResult.success();
+                            return MarketBuyResult.success(true);
                         }
                 );
 
@@ -276,6 +276,7 @@ public class MarketImpl implements IMarketAPI {
         buy(player, marketId, itemId, amount).thenAccept((marketBuyResult) -> {
             switch (marketBuyResult.status()) {
                 case SUCCESS -> HMI18n.sendPlayerSync(player.getUniqueId(), "info.ui.market.buy_success");
+                case WITHDRAW_SUCCESS -> HMI18n.sendPlayerSync(player.getUniqueId(), "info.ui.market.withdraw_success");
                 case OUT_OF_STOCK -> HMI18n.sendPlayerSync(player.getUniqueId(), "info.ui.market.out_of_stock");
                 case WRONG_MARKET, ITEM_NOT_FOUND ->
                         HMI18n.sendPlayerSync(player.getUniqueId(), "info.ui.market.item_not_found", itemId);
