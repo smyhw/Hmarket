@@ -1,1 +1,1 @@
-UPDATE shop_item SET amount=amount-? WHERE itemId=? AND market=? AND itemNbt=? AND amount>=?;
+UPDATE shop_item SET amount=amount-? WHERE itemId=? AND market=? AND price=? AND itemNbt=? AND amount>=?;
