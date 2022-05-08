@@ -17,6 +17,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class HmUiShopItem implements IClickableUiItem {
     private final ShopItemData itemData;
@@ -29,13 +30,12 @@ public class HmUiShopItem implements IClickableUiItem {
     }
 
     @Override
-    public void onClick(WindowClickData clickData, Player player) {
+    public void onClick(@NotNull WindowClickData clickData, Player player) {
         var clickType = clickData.clickType();
         var buttonNum = clickData.buttonNum();
-        var carriedItem = clickData.carriedItem();
-        if (carriedItem == null) return;
-        if (!checkCarriedItem(carriedItem)) return;
-
+        var targetItem = getTargetItem(clickData);
+        if (targetItem == null) return;
+        if (!targetItem.getType().isAir() && !checkCarriedItem(targetItem)) return;
         if (clickType == DataClickType.PICKUP && buttonNum == 0) {
             onBuy(player, 1);
             return;
@@ -44,6 +44,18 @@ public class HmUiShopItem implements IClickableUiItem {
             onBuy(player, itemData.amount());
         }
 
+    }
+
+    private @Nullable ItemStack getTargetItem(@NotNull WindowClickData clickData) {
+        var carriedItem = clickData.carriedItem();
+        if (carriedItem != null && !carriedItem.getType().isAir()) return clickData.carriedItem();
+        if (clickData.changedSlots().size() == 1) return clickData.changedSlots().get(0);
+        if (clickData.changedSlots().size() > 1) {
+            for (int i : clickData.changedSlots().keySet()) {
+                if (!clickData.changedSlots().get(i).getType().isAir()) return clickData.changedSlots().get(i);
+            }
+        }
+        return null;
     }
 
     private boolean checkCarriedItem(ItemStack carriedItem) {

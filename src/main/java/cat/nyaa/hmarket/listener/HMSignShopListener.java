@@ -15,6 +15,7 @@ public class HMSignShopListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onSignInteract(@NotNull PlayerInteractEvent event) {
         if (!event.hasBlock()) return;
+        if(event.getPlayer().isSneaking()) return;
         var shopLocation = Hmarket.getAPI() != null ? Hmarket.getAPI().getShopLocationApi() : null;
         if (shopLocation == null) return;
         var clickedBlock = event.getClickedBlock();
