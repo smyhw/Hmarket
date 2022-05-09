@@ -252,7 +252,7 @@ public class MarketImpl implements IMarketAPI {
     private void onShopSold(Player player, ShopItemData shopItemData, ItemStack itemStack, int amount) {
         AoMessage.getInstanceOptional().ifPresent(
                 aoMessage -> aoMessage.sendMessageTo(
-                        player.getUniqueId(),
+                        shopItemData.owner(),
                         HMI18n.format(
                                 "info.market.sold",
                                 itemStack.hasItemMeta()
