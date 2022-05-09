@@ -1,1 +1,1 @@
-SELECT * FROM shop_item WHERE market=?;
+SELECT * FROM shop_item WHERE market=? ORDER BY createdAt DESC;
