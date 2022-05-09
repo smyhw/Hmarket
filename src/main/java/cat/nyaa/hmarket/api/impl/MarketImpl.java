@@ -151,7 +151,7 @@ public class MarketImpl implements IMarketAPI {
                 if (marketApi.getEconomyCore().getPlayerBalance(playerId) < cost + tax) {
                     return MarketBuyResult.fail(MarketBuyResult.MarketBuyStatus.NOT_ENOUGH_MONEY);
                 }
-                if (marketApi.getEconomyCore().withdrawPlayer(playerId, cost + tax)) {
+                if (!marketApi.getEconomyCore().withdrawPlayer(playerId, cost + tax)) {
                     return MarketBuyResult.fail(MarketBuyResult.MarketBuyStatus.TRANSACTION_ERROR);
                 }
                 paidCost.set(cost);
