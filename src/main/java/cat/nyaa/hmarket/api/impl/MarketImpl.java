@@ -204,7 +204,7 @@ public class MarketImpl implements IMarketAPI {
                             HMLogUtils.logWarning("from: " + playerId);
                         }
                     }
-                    onShopSold(player, shopItemData, itemStack, amount, paidCost.get(), paidTax.get());
+                    onShopSold(player, shopItemData, itemStack, amount);
                     HMLogUtils.logInfo("Player " + playerId + " bought " + itemStack + " from market " + marketId);
                     HMLogUtils.logInfo("cost: " + paidCost.get() + " tax: " + paidTax.get() + "," + shopItemData.owner() + " received: " + (paidCost.get() - paidTax.get()));
                     return true;
@@ -249,7 +249,7 @@ public class MarketImpl implements IMarketAPI {
 
     }
 
-    private void onShopSold(Player player, ShopItemData shopItemData, ItemStack itemStack, int amount, double paidCost, double paidTax) {
+    private void onShopSold(Player player, ShopItemData shopItemData, ItemStack itemStack, int amount) {
         AoMessage.getInstanceOptional().ifPresent(
                 aoMessage -> aoMessage.sendMessageTo(
                         player.getUniqueId(),
@@ -262,7 +262,7 @@ public class MarketImpl implements IMarketAPI {
 
                                 amount,
                                 player.getName(),
-                                paidCost + paidTax
+                                shopItemData.price() * amount
                         )
                 )
         );
