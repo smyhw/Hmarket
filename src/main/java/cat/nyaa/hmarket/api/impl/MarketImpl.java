@@ -83,13 +83,13 @@ public class MarketImpl implements IMarketAPI {
                 (result) -> {
                     switch (result.status()) {
                         case SUCCESS ->
-                                HMI18n.sendPlayerSync(playerId, "command.offer.success", result.itemId().orElse(-1));
-                        case NOT_ENOUGH_ITEMS -> HMI18n.sendPlayerSync(playerId, "command.not-enough-item-in-hand");
-                        case NOT_ENOUGH_MONEY -> HMI18n.sendPlayerSync(playerId, "command.not-enough-money");
-                        case NOT_ENOUGH_SPACE -> HMI18n.sendPlayerSync(playerId, "command.not-enough-space");
-                        case TASK_FAILED -> HMI18n.sendPlayerSync(playerId, "command.task-failed");
-                        case DATABASE_ERROR -> HMI18n.sendPlayerSync(playerId, "command.database-error");
-                        case INVALID_PRICE -> HMI18n.sendPlayerSync(playerId, "command.invalid-price");
+                                HMI18n.sendSync(playerId, "command.offer.success", result.itemId().orElse(-1));
+                        case NOT_ENOUGH_ITEMS -> HMI18n.sendSync(playerId, "command.not-enough-item-in-hand");
+                        case NOT_ENOUGH_MONEY -> HMI18n.sendSync(playerId, "command.not-enough-money");
+                        case NOT_ENOUGH_SPACE -> HMI18n.sendSync(playerId, "command.not-enough-space");
+                        case TASK_FAILED -> HMI18n.sendSync(playerId, "command.task-failed");
+                        case DATABASE_ERROR -> HMI18n.sendSync(playerId, "command.database-error");
+                        case INVALID_PRICE -> HMI18n.sendSync(playerId, "command.invalid-price");
                     }
                 }
         );
@@ -275,15 +275,15 @@ public class MarketImpl implements IMarketAPI {
     public void commandBuy(@NotNull Player player, @NotNull UUID marketId, int itemId, int amount) {
         buy(player, marketId, itemId, amount).thenAccept((marketBuyResult) -> {
             switch (marketBuyResult.status()) {
-                case SUCCESS -> HMI18n.sendPlayerSync(player.getUniqueId(), "info.ui.market.buy_success");
-                case WITHDRAW_SUCCESS -> HMI18n.sendPlayerSync(player.getUniqueId(), "info.ui.market.withdraw_success");
-                case OUT_OF_STOCK -> HMI18n.sendPlayerSync(player.getUniqueId(), "info.ui.market.out_of_stock");
+                case SUCCESS -> HMI18n.sendSync(player.getUniqueId(), "info.ui.market.buy_success");
+                case WITHDRAW_SUCCESS -> HMI18n.sendSync(player.getUniqueId(), "info.ui.market.withdraw_success");
+                case OUT_OF_STOCK -> HMI18n.sendSync(player.getUniqueId(), "info.ui.market.out_of_stock");
                 case WRONG_MARKET, ITEM_NOT_FOUND ->
-                        HMI18n.sendPlayerSync(player.getUniqueId(), "info.ui.market.item_not_found", itemId);
-                case NOT_ENOUGH_MONEY -> HMI18n.sendPlayerSync(player.getUniqueId(), "info.ui.market.not_enough_money");
+                        HMI18n.sendSync(player.getUniqueId(), "info.ui.market.item_not_found", itemId);
+                case NOT_ENOUGH_MONEY -> HMI18n.sendSync(player.getUniqueId(), "info.ui.market.not_enough_money");
                 case TASK_FAILED, TRANSACTION_ERROR, CANNOT_BUY_ITEM ->
-                        HMI18n.sendPlayerSync(player.getUniqueId(), "info.ui.market.buy_failed");
-                case PLAYER_OWNS_ITEM -> HMI18n.sendPlayerSync(player.getUniqueId(), "info.ui.market.player_owns_item");
+                        HMI18n.sendSync(player.getUniqueId(), "info.ui.market.buy_failed");
+                case PLAYER_OWNS_ITEM -> HMI18n.sendSync(player.getUniqueId(), "info.ui.market.player_owns_item");
             }
         });
     }

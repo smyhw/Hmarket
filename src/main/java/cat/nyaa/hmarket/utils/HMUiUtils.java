@@ -3,7 +3,6 @@ package cat.nyaa.hmarket.utils;
 import cat.nyaa.hmarket.HMI18n;
 import cat.nyaa.hmarket.Hmarket;
 import cat.nyaa.hmarket.ui.HMPageUi;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,12 +36,12 @@ public class HMUiUtils {
         var hmApi = Hmarket.getAPI();
         if (hmApi == null) return null;
         if (Hmarket.uiManager == null) return null;
-        var owner = Bukkit.getPlayer(shopId);
+
         String title;
         if (shopId.equals(MarketIdUtils.getSystemShopId())) {
             title = HMI18n.format("info.ui.title.shop.system");
         } else {
-            title = HMI18n.format("info.ui.title.shop.user", owner == null ? shopId.toString() : owner.getName());
+            title = HMI18n.format("info.ui.title.shop.user", PlayerNameUtils.getPlayerNameById(shopId));
         }
         var ui = new HMPageUi(shopId, Hmarket.uiManager::broadcastFullState, title);
         shopUiMap.put(shopId, new WeakReference<>(ui));
@@ -55,8 +54,9 @@ public class HMUiUtils {
         if (ui == null) return;
         Hmarket.uiManager.sendOpenWindow(player, ui);
     }
+
     public static void updateShopUi(UUID marketId) {
-        var ui =getShopUiNullable(marketId);
+        var ui = getShopUiNullable(marketId);
         if (ui == null) return;
         ui.updateShopItem();
     }

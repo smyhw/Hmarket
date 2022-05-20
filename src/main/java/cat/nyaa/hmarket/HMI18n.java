@@ -36,7 +36,7 @@ public class HMI18n extends LanguageRepository {
         return instance.getSubstituted(key, args);
     }
 
-    public static void sendPlayerSync(UUID playerId, String key, Object... args) {
+    public static void sendSync(UUID playerId, String key, Object... args) {
         if (instance == null) return;
         TaskUtils.async.callSync(() -> {
                     var player = Bukkit.getPlayer(playerId);
@@ -45,6 +45,16 @@ public class HMI18n extends LanguageRepository {
                 }
         );
     }
+    public static void sendSubstituteSync(UUID playerId, String key, Object... args) {
+        if (instance == null) return;
+        TaskUtils.async.callSync(() -> {
+                    var player = Bukkit.getPlayer(playerId);
+                    if (player == null) return;
+                    HMI18n.sendSubstitute(player, key, args);
+                }
+        );
+    }
+    
 
     public static void send(@NotNull CommandSender recipient, String key, Object... args) {
         if (recipient instanceof Player player && !player.isOnline()) {
@@ -54,6 +64,16 @@ public class HMI18n extends LanguageRepository {
             }
         } else {
             recipient.sendMessage(format(key, args));
+        }
+    }
+    public static void sendSubstitute(@NotNull CommandSender recipient, String key, Object... args) {
+        if (recipient instanceof Player player && !player.isOnline()) {
+            var aoMessage = AoMessage.getInstance();
+            if (aoMessage != null) {
+                aoMessage.sendMessageTo(player.getUniqueId(),substitute(key, args));
+            }
+        } else {
+            recipient.sendMessage(substitute(key, args));
         }
     }
 

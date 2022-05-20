@@ -11,17 +11,19 @@ import cat.nyaa.hmarket.utils.HMLogUtils;
 import cat.nyaa.hmarket.utils.HMUiUtils;
 import cat.nyaa.hmarket.utils.KeyUtils;
 import cat.nyaa.hmarket.utils.TimeUtils;
+import com.google.common.collect.Lists;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.Sign;
+import org.bukkit.block.data.type.WallSign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public class ShopLocationImpl implements IMarketShopLocation {
@@ -123,19 +125,19 @@ public class ShopLocationImpl implements IMarketShopLocation {
                 .thenAccept(
                         result1 -> {
                             if (result1.isEmpty()) {
-                                HMI18n.sendPlayerSync(ownerId, "info.database_error");
+                                HMI18n.sendSync(ownerId, "info.database_error");
                             } else if (result1.get() > 0) {
-                                HMI18n.sendPlayerSync(ownerId, "info.sign.created");
+                                HMI18n.sendSync(ownerId, "info.sign.created");
                                 cache.getAndUpdateCache(fromLocation);
                             } else {
-                                HMI18n.sendPlayerSync(ownerId, "info.sign.create_failed");
+                                HMI18n.sendSync(ownerId, "info.sign.create_failed");
                             }
                         }
                 )
                 .whenComplete(
                         (result1, throwable) -> {
                             if (throwable != null) {
-                                HMI18n.sendPlayerSync(ownerId, "info.database_error");
+                                HMI18n.sendSync(ownerId, "info.database_error");
                                 HMLogUtils.logWarning("Failed to create shop at " + fromLocation);
                                 throwable.printStackTrace();
                             }
@@ -149,7 +151,7 @@ public class ShopLocationImpl implements IMarketShopLocation {
     }
 
     @Override
-    public boolean isBlockProtected(@NotNull Block block) {
+    public boolean isBlockProtected(@NotNull Block block, @Nullable Player player) {
         if (block.getState().hasMetadata(KeyUtils.SIGN_CREATE_LOCK)) {
             for (MetadataValue metadata : block.getState().getMetadata(KeyUtils.SIGN_CREATE_LOCK)) {
                 if (metadata.getOwningPlugin() == null) continue;
@@ -163,7 +165,64 @@ public class ShopLocationImpl implements IMarketShopLocation {
                 }
             }
         }
-        return false;
+        List<Block> nearby = Lists.newArrayList();
+        final BlockFace[] directions = new BlockFace[]{BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST, BlockFace.UP, BlockFace.DOWN};
+        for (BlockFace direction : directions) {
+            nearby.add(block.getRelative(direction));
+        }
+        nearby.removeIf(b ->
+                {
+                    if (b == null) return true;
+                    return b.isEmpty();
+                }
+        );
+        for (Block b : nearby) {
+            if (b.getState() instanceof Sign signState) {
+                var baseBlock = getSignBaseBlock(signState);
+                if (baseBlock.getLocation().equals(block.getLocation())) {
+                    var signLocation = BlockLocationData.fromLocation(b.getLocation());
+                    if (cache.containsKey(signLocation)) {
+
+                        if (player != null) {
+                            HMI18n.send(player, "info.sign.nearby-protected");
+                        }
+                        return true;
+                    }
+                }
+            }
+        }
+
+        var fromLocation = BlockLocationData.fromLocation(block.getLocation());
+        if (!cache.containsKey(fromLocation)) return false;
+        if (player == null) {
+            return true;
+        }
+        if (player.isOp()) return false;
+        var shop = cache.get(fromLocation);
+        var playerId = player.getUniqueId();
+        if (!shop.owner().equals(playerId)) {
+            HMI18n.send(player, "info.sign.not-owner");
+            return true;
+        }
+            return false;
+
+    }
+
+    private Block getSignBaseBlock(Sign block) {
+        BlockFace face;
+        if (block.getBlockData() instanceof WallSign wallSign) {
+            face = wallSign.getFacing();
+        } else if (block.getBlockData() instanceof org.bukkit.block.data.type.Sign) {
+            face = BlockFace.UP;
+        } else {
+            @SuppressWarnings("deprecation") final org.bukkit.material.Sign signMat = (org.bukkit.material.Sign) block.getData();
+            if (!signMat.isWallSign()) {
+                face = BlockFace.UP;
+            } else {
+                face = signMat.getFacing();
+            }
+        }
+        return block.getBlock().getRelative(face.getOppositeFace());
     }
 
     @Override
@@ -172,10 +231,10 @@ public class ShopLocationImpl implements IMarketShopLocation {
         cache.remove(fromLocation).thenAccept(
                 result -> {
                     if (result) {
-                        HMI18n.sendPlayerSync(playerId, "info.sign.destroyed");
+                        HMI18n.sendSync(playerId, "info.sign.destroyed");
                         HMLogUtils.logInfo("Shop sign at " + fromLocation + " was destroyed by " + playerId);
                     } else {
-                        HMI18n.sendPlayerSync(playerId, "info.sign.destroy_failed");
+                        HMI18n.sendSync(playerId, "info.sign.destroy_failed");
                         HMLogUtils.logWarning("Failed to destroy shop at " + fromLocation + " for player " + playerId);
                     }
                 }
@@ -186,8 +245,18 @@ public class ShopLocationImpl implements IMarketShopLocation {
     public Optional<ShopLocationData> getLocationData(BlockLocationData blockLocationData) {
         if (cache.containsKey(blockLocationData)) {
             return Optional.ofNullable(cache.get(blockLocationData));
-        }else{
+        } else {
             return Optional.empty();
         }
+    }
+
+    @Override
+    public CompletableFuture<Optional<List<ShopLocationData>>> getLocationDataByOwner(UUID ownerId) {
+        return marketApi.getDatabaseManager().getShopLocationByOwner(ownerId);
+    }
+
+    @Override
+    public CompletableFuture<Optional<List<ShopLocationData>>> getLocationDataByMarket(UUID marketId) {
+        return marketApi.getDatabaseManager().getShopLocationByMarket(marketId);
     }
 }

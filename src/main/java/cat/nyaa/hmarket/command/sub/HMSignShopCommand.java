@@ -1,10 +1,11 @@
 package cat.nyaa.hmarket.command.sub;
 
+import cat.nyaa.aolib.utils.CommandUtils;
 import cat.nyaa.hmarket.HMI18n;
 import cat.nyaa.hmarket.Hmarket;
 import cat.nyaa.hmarket.api.data.BlockLocationData;
 import cat.nyaa.hmarket.utils.HMMathUtils;
-import cat.nyaa.hmarket.utils.MarketIdUtils;
+import cat.nyaa.hmarket.utils.PlayerNameUtils;
 import cat.nyaa.nyaacore.ILocalizer;
 import cat.nyaa.nyaacore.cmdreceiver.Arguments;
 import cat.nyaa.nyaacore.cmdreceiver.CommandReceiver;
@@ -15,10 +16,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 
+import java.util.UUID;
+
 public class HMSignShopCommand extends CommandReceiver {
 
-
-    private final Hmarket plugin;
 
     /**
      * @param plugin for logging purpose only
@@ -26,7 +27,54 @@ public class HMSignShopCommand extends CommandReceiver {
      */
     public HMSignShopCommand(Hmarket plugin, ILocalizer _i18n) {
         super(plugin, _i18n);
-        this.plugin = plugin;
+    }
+
+    @SubCommand(value = "list", permission = "hmarket.shop")
+    public void list(CommandSender sender, Arguments args) {
+        if (!(sender instanceof Player player)) {
+            HMI18n.send(sender, "command.only-player-can-do");
+            return;
+        }
+        UUID targetId = null;
+        if (sender.isOp()) {
+            var name = args.next();
+            if (name != null) {
+                targetId = CommandUtils.receiveCommand.getPlayerUUIDByStr(name, sender);
+            }
+        }
+        if (targetId == null) {
+            targetId = player.getUniqueId();
+        }
+        var playerId = player.getUniqueId();
+        var hmApi = Hmarket.getAPI();
+        if (hmApi == null) return;
+        var shopLocation = hmApi.getShopLocationApi();
+        shopLocation.getLocationDataByOwner(targetId).thenAccept(
+                locationDataList -> {
+                    if (locationDataList.isEmpty()) {
+                        HMI18n.sendSync(playerId, "command.database_error");
+                        return;
+                    }
+                    var locationDataList1 = locationDataList.get();
+                    if (locationDataList1.isEmpty()) {
+                        HMI18n.sendSync(playerId, "command.shop.list.empty");
+                        return;
+                    }
+                    for (var locationData : locationDataList1) {
+                        HMI18n.sendSubstituteSync(playerId, "command.shop.list.info",
+                                "world", locationData.world(),
+                                "x", locationData.blockX(),
+                                "y", locationData.blockY(),
+                                "z", locationData.blockZ(),
+                                "owner", PlayerNameUtils.getPlayerNameById(locationData.owner()),
+                                "market", locationData.market(),
+                                "type", locationData.type()
+                        );
+
+                    }
+
+                }
+        );
     }
 
     @SubCommand(value = "sell", permission = "hmarket.shop")
@@ -70,7 +118,7 @@ public class HMSignShopCommand extends CommandReceiver {
 
         hmApi.getShopLocationApi().getLocationData(blockLocationData).ifPresentOrElse(
                 locationData -> {
-                    if (!locationData.owner().equals( player.getUniqueId())) {
+                    if (!locationData.owner().equals(player.getUniqueId())) {
                         HMI18n.send(sender, "command.shop.not-owner");
                     } else {
                         hmApi.getMarketAPI().commandOffer(player, player.getUniqueId(), item, price);

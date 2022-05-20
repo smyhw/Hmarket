@@ -230,7 +230,17 @@ public class HmarketDatabaseManager {
 
     public CompletableFuture<Optional<Boolean>> withdrawItemFromMarket(@NotNull UUID market, @NotNull UUID owner, int itemId, int amount, String itemNbt) {
         return DatabaseUtils.executeUpdateAsync(connection, plugin, "withdrawItemFromMarket.sql", databaseExecutor,
-                       amount,  itemId,market.toString(),owner.toString(), itemNbt,amount)
+                        amount, itemId, market.toString(), owner.toString(), itemNbt, amount)
                 .thenApply((i) -> i.map(j -> (j) > 0));
+    }
+
+    public CompletableFuture<Optional<List<ShopLocationData>>> getShopLocationByOwner(UUID ownerId) {
+        return DatabaseUtils.executeQueryAsync(connection, plugin, "getShopLocationByOwner.sql", databaseExecutor,
+                DBFunctionUtils.getDataListFromResultSet(ShopLocationData.class), ownerId);
+    }
+
+    public CompletableFuture<Optional<List<ShopLocationData>>> getShopLocationByMarket(UUID marketId) {
+        return DatabaseUtils.executeQueryAsync(connection, plugin, "getShopLocationByMarket.sql", databaseExecutor,
+                DBFunctionUtils.getDataListFromResultSet(ShopLocationData.class), marketId);
     }
 }

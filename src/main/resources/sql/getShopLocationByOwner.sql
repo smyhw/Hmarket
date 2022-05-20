@@ -1,0 +1,1 @@
+SELECT * FROM shop_location_v2 WHERE owner=?;

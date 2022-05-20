@@ -5,6 +5,7 @@ import cat.nyaa.hmarket.api.IMarketShopLocation;
 import cat.nyaa.hmarket.utils.HMLogUtils;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -15,24 +16,26 @@ import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.world.StructureGrowEvent;
+import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nullable;
 import java.util.Optional;
 
 public class HMBlockEnvironmentListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
-    public void onEntityExplode(EntityExplodeEvent event) {
-        event.blockList().removeIf(HMBlockEnvironmentListener::isBlockProtected);
+    public void onEntityExplode(@NotNull EntityExplodeEvent event) {
+        event.blockList().removeIf(block -> isBlockProtected(block, null));
     }
 
     @EventHandler(priority = EventPriority.HIGH)
-    public void onBlockExplode(BlockExplodeEvent event) {
-        event.blockList().removeIf(HMBlockEnvironmentListener::isBlockProtected);
+    public void onBlockExplode(@NotNull BlockExplodeEvent event) {
+        event.blockList().removeIf(block -> isBlockProtected(block, null));
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onStructureGrow(StructureGrowEvent event) {
+    public void onStructureGrow(@NotNull StructureGrowEvent event) {
         for (BlockState blockstate : event.getBlocks()) {
-            if (isBlockProtected(blockstate.getBlock())) {
+            if (isBlockProtected(blockstate.getBlock(), null)) {
                 event.setCancelled(true);
                 return;
             }
@@ -40,9 +43,9 @@ public class HMBlockEnvironmentListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onPistonExtend(BlockPistonExtendEvent event) {
+    public void onPistonExtend(@NotNull BlockPistonExtendEvent event) {
         for (Block block : event.getBlocks()) {
-            if (isBlockProtected(block)) {
+            if (isBlockProtected(block, null)) {
                 event.setCancelled(true);
                 return;
             }
@@ -50,9 +53,9 @@ public class HMBlockEnvironmentListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onPistonRetract(BlockPistonRetractEvent event) {
+    public void onPistonRetract(@NotNull BlockPistonRetractEvent event) {
         for (Block block : event.getBlocks()) {
-            if (isBlockProtected(block)) {
+            if (isBlockProtected(block, null)) {
                 event.setCancelled(true);
                 return;
             }
@@ -60,16 +63,22 @@ public class HMBlockEnvironmentListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onEntityChangeBlock(EntityChangeBlockEvent event) {
-        if (isBlockProtected(event.getBlock())) {
+    public void onEntityChangeBlock(@NotNull EntityChangeBlockEvent event) {
+        if (isBlockProtected(event.getBlock(), null)) {
             event.setCancelled(true);
         }
     }
 
+    //    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+//    public void onBlockPhysics(@NotNull BlockPhysicsEvent event) {
+//        if (isBlockProtected(event.getBlock(), null)) {
+//            event.setCancelled(true);
+//        }
+//    }
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onBlockBreak(BlockBreakEvent event) {
+    public void onBlockBreak(@NotNull BlockBreakEvent event) {
         Block block = event.getBlock();
-        if (isBlockProtected(block)) {
+        if (isBlockProtected(block, event.getPlayer())) {
             event.setCancelled(true);
         }
     }
@@ -78,8 +87,8 @@ public class HMBlockEnvironmentListener implements Listener {
         return Optional.ofNullable(Hmarket.getAPI() != null ? Hmarket.getAPI().getShopLocationApi() : null);
     }
 
-    private static boolean isBlockProtected(Block block) {
-        return getShopLocation().map(shopLocation -> shopLocation.isBlockProtected(block)).orElseGet(() -> {
+    private static boolean isBlockProtected(Block block, @Nullable Player player) {
+        return getShopLocation().map(shopLocation -> shopLocation.isBlockProtected(block, player)).orElseGet(() -> {
             HMLogUtils.logWarning("HMarket is not loaded, can not break block");
             return true;
         });

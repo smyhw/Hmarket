@@ -10,7 +10,7 @@ import java.util.List;
 
 public class HMListenerManager {
 
-    private List<Listener> listerList = new ArrayList<>();
+    private final List<Listener> listerList = new ArrayList<>();
 
     public HMListenerManager(Hmarket plugin) {
        this.register(new HMSignShopListener(), plugin);
