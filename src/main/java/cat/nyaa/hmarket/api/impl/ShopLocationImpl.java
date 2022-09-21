@@ -12,6 +12,7 @@ import cat.nyaa.hmarket.utils.HMUiUtils;
 import cat.nyaa.hmarket.utils.KeyUtils;
 import cat.nyaa.hmarket.utils.TimeUtils;
 import com.google.common.collect.Lists;
+import net.kyori.adventure.text.Component;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
@@ -103,9 +104,9 @@ public class ShopLocationImpl implements IMarketShopLocation {
     }
 
     @Override
-    public void onSignChange(@NotNull BlockLocationData fromLocation, @NotNull Player owner, String @NotNull [] lines, @NotNull Block block) {
-        if (lines.length < 3) return;
-        if (!lines[0].equalsIgnoreCase(SIGN_LINE0)) return;
+    public void onSignChange(@NotNull BlockLocationData fromLocation, @NotNull Player owner, @NotNull List<Component> lines, @NotNull Block block) {
+        if (lines.size() < 3) return;
+        if (!lines.get(0).equals(Component.text(SIGN_LINE0))) return;
 
         if (cache.containsKey(fromLocation)) {
             HMLogUtils.logWarning("Shop already exists at " + fromLocation);

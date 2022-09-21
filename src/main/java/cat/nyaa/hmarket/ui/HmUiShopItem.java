@@ -11,6 +11,7 @@ import cat.nyaa.hmarket.utils.HMMathUtils;
 import cat.nyaa.hmarket.utils.TimeUtils;
 import cat.nyaa.nyaacore.utils.ItemStackUtils;
 import com.google.common.collect.Lists;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -67,12 +68,7 @@ public class HmUiShopItem implements IClickableUiItem {
         var carriedItemId = meta.getPersistentDataContainer().get(namespacedKey.itemId(), PersistentDataType.INTEGER);
         var carriedItemMarketId = meta.getPersistentDataContainer().get(namespacedKey.MarketId(), PersistentDataType.STRING);
         var carriedItemTime = meta.getPersistentDataContainer().get(namespacedKey.ItemTime(), PersistentDataType.LONG);
-        return carriedItemId != null &&
-                carriedItemMarketId != null &&
-                carriedItemTime != null &&
-                carriedItemId.equals(itemData.itemId()) &&
-                carriedItemMarketId.equals(itemData.market().toString()) &&
-                carriedItemTime == itemTime;
+        return carriedItemId != null && carriedItemMarketId != null && carriedItemTime != null && carriedItemId.equals(itemData.itemId()) && carriedItemMarketId.equals(itemData.market().toString()) && carriedItemTime == itemTime;
     }
 
     private void onBuy(Player player, int amount) {
@@ -91,17 +87,17 @@ public class HmUiShopItem implements IClickableUiItem {
         var ownerName = Bukkit.getOfflinePlayer(itemData.owner()).getName();
         var meta = item.getItemMeta();
         if (meta != null) {
-            var lore = meta.getLore();
+            var lore = meta.lore();
             if (lore == null) lore = Lists.newArrayList();
-            lore.add(HMI18n.format("info.ui.item.owner", ownerName == null ? itemData.owner() : ownerName));
-            lore.add(HMI18n.format("info.ui.item.price", itemData.price()));
-            lore.add(HMI18n.format("info.ui.item.tax", api.getMarketAPI().getTaxRate(itemData) * 100.0, HMMathUtils.round((itemData.price() * (1.0 + api.getMarketAPI().getTaxRate(itemData))), 2)));
+            lore.add(Component.text(HMI18n.format("info.ui.item.owner", ownerName == null ? itemData.owner() : ownerName)));
+            lore.add(Component.text(HMI18n.format("info.ui.item.price", itemData.price())));
+            lore.add(Component.text(HMI18n.format("info.ui.item.tax", api.getMarketAPI().getTaxRate(itemData) * 100.0, HMMathUtils.round((itemData.price() * (1.0 + api.getMarketAPI().getTaxRate(itemData))), 2))));
             if (itemData.owner().equals(player.getUniqueId())) {
-                lore.add(HMI18n.format("info.ui.item.owner_item_back"));
+                lore.add(Component.text(HMI18n.format("info.ui.item.owner_item_back")));
             } else {
-                lore.add(HMI18n.format("info.ui.item.buy_item"));
+                lore.add(Component.text(HMI18n.format("info.ui.item.buy_item")));
             }
-            meta.setLore(lore);
+            meta.lore(lore);
             MarketUiItemNamespacedKey.getInstance().ifPresent(namespacedKey -> {
                 meta.getPersistentDataContainer().set(namespacedKey.itemId(), PersistentDataType.INTEGER, itemData.itemId());
                 meta.getPersistentDataContainer().set(namespacedKey.MarketId(), PersistentDataType.STRING, itemData.market().toString());

@@ -258,7 +258,7 @@ public class MarketImpl implements IMarketAPI {
                                 itemStack.hasItemMeta()
                                         && itemStack.getItemMeta() != null
                                         && itemStack.getItemMeta().hasDisplayName() ?
-                                        itemStack.getItemMeta().getDisplayName() : itemStack.getType().name(),
+                                        itemStack.getItemMeta().displayName() : itemStack.getType().name(),
 
                                 amount,
                                 player.getName(),

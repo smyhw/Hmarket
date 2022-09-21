@@ -5,14 +5,12 @@ plugins {
 }
 
 // Plugin config
-var minecraftVersionStr = "1.18.2"
+var minecraftVersionStr = "1.19.2"
 ext.pluginName = "Hmarket"
 ext.pluginname = ext.pluginName.toLowerCase()
 ext.majorVersion = 0
 ext.minorVersion = 8
 ext.minecraftVersion = minecraftVersionStr
-sourceCompatibility = 17
-targetCompatibility = 17
 
 // Supplied by Jenkins
 ext.buildNumber = System.env.BUILD_NUMBER == null ? "x" : "$System.env.BUILD_NUMBER"
@@ -28,22 +26,20 @@ runServer {
 }
 repositories {
     mavenCentral()
-    //'Spigot';
-    maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
-    maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
-    maven { url = 'https://oss.sonatype.org/content/repositories/central' }
-    maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
-
+    maven { url 'https://repo.papermc.io/repository/maven-public/' }
     maven { name 'NyaaCat'; url 'https://ci.nyaacat.com/maven/' }
 }
-
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+    withJavadocJar()
+    withSourcesJar()
+}
 dependencies {
-    compileOnly "org.spigotmc:spigot-api:$minecraftVersion-R0.1-SNAPSHOT"
-
+    compileOnly("io.papermc.paper:paper-api:$minecraftVersion-R0.1-SNAPSHOT")
     // other nyaa plugins
-    compileOnly('cat.nyaa:nyaacore:9.0-SNAPSHOT')
-    compileOnly('cat.nyaa:aolib:1.0.60')
-    compileOnly('cat.nyaa:ecore:0.3.2')
+    compileOnly('cat.nyaa:nyaacore:9.2.11-SNAPSHOT')
+    compileOnly('cat.nyaa:aolib:1.1.63')
+    compileOnly('cat.nyaa:ecore:0.3.3')
 
     compileOnly 'org.jetbrains:annotations:23.0.0'
 }
@@ -53,17 +49,6 @@ compileJava {
     options.encoding = 'UTF-8'
 }
 
-task sourcesJar(type: Jar) {
-    archiveClassifier.set('sources')
-    from sourceSets.main.java.srcDirs
-}
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    archiveClassifier.set('javadoc')
-    from javadoc.destinationDir
-}
-if (ext.jdDirectory != null) {
-    javadoc.destinationDir = file("${jdDirectory}/${pluginname}-${version}")
-}
 processResources { // modify version string
     filesMatching("**/plugin.yml") {
         expand 'version': project.version
@@ -75,10 +60,7 @@ publishing {
             group project.group
             artifactId pluginname
             version "$majorVersion.$minorVersion-SNAPSHOT"
-
             from components.java
-            artifact sourcesJar
-            artifact javadocJar
         }
     }
     repositories {
@@ -87,9 +69,8 @@ publishing {
         }
     }
 }
-
-
 javadoc {
+    if (project.jdDirectory != null) destinationDir = file("${jdDirectory}/${pluginNameLower}-${version}")
     (options as StandardJavadocDocletOptions).with {
         links 'https://docs.oracle.com/en/java/javase/17/docs/api/'
         links 'https://hub.spigotmc.org/javadocs/spigot/'
@@ -98,15 +79,9 @@ javadoc {
 
         locale 'en_US'
         encoding 'UTF-8'
-        docEncoding 'UTF-8'
         addBooleanOption('keywords', true)
         addStringOption('Xdoclint:none', '-quiet')
-
-        if (JavaVersion.current() > JavaVersion.VERSION_1_9) {
-            options.addBooleanOption('html5', true)
-        }
-
+        options.addBooleanOption('html5', true)
         windowTitle = "${pluginName} Javadoc"
-        docTitle = "${pluginName} (mc$minecraftVersion-${project.version})"
     }
 }

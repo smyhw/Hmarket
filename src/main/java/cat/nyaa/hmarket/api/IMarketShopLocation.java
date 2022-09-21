@@ -2,6 +2,7 @@ package cat.nyaa.hmarket.api;
 
 import cat.nyaa.hmarket.api.data.BlockLocationData;
 import cat.nyaa.hmarket.db.data.ShopLocationData;
+import net.kyori.adventure.text.Component;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
@@ -16,7 +17,7 @@ import java.util.concurrent.CompletableFuture;
 public interface IMarketShopLocation {
     void onSignClick(@NotNull BlockLocationData blockLocationData, Player player, @NotNull Action action);
 
-    void onSignChange(@NotNull BlockLocationData fromLocation, @NotNull Player owner, @NotNull String[] lines, @NotNull Block block);
+    void onSignChange(@NotNull BlockLocationData fromLocation, @NotNull Player owner, @NotNull List<Component> lines, @NotNull Block block);
 
     boolean isBlockProtected(@NotNull Block block, @Nullable Player player);
 

@@ -36,7 +36,7 @@ public class HMSignShopListener implements Listener {
         shopLocation.onSignChange(
                 BlockLocationData.fromLocation(event.getBlock().getLocation()),
                 event.getPlayer(),
-                event.getLines(),
+                event.lines(),
                 event.getBlock()
         );
     }
