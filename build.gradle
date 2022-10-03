@@ -19,7 +19,7 @@ ext.jdDirectory = System.env.JAVADOCS_DIR == null ? null : "$System.env.JAVADOCS
 
 // Version used for distribution. Different from maven repo
 group = "cat.nyaa"
-archivesBaseName = "${pluginName}-mc$minecraftVersion"
+//archivesBaseName = "${pluginName}-mc$minecraftVersion"
 version = "$majorVersion.$minorVersion.$buildNumber".toString()
 runServer {
     minecraftVersion(minecraftVersionStr)
@@ -70,7 +70,7 @@ publishing {
     }
 }
 javadoc {
-    if (project.jdDirectory != null) destinationDir = file("${jdDirectory}/${pluginNameLower}-${version}")
+    if (project.jdDirectory != null) destinationDir = file("${jdDirectory}/${pluginname}-${version}")
     (options as StandardJavadocDocletOptions).with {
         links 'https://docs.oracle.com/en/java/javase/17/docs/api/'
         links 'https://hub.spigotmc.org/javadocs/spigot/'
