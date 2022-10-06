@@ -21,7 +21,7 @@ info:
   sign:
     not-owner: "This is not your shop"
     nearby-protected: "There is a sign shop on this block, please remove it first"
-  database_error: "Database error"
+    database_error: "Database error"
     destroyed: "Sign destroyed"
     create_failed: "Failed to create, the limit may have been reached"
     created: "Sign created"
