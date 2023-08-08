@@ -5,7 +5,7 @@ plugins {
 }
 
 // Plugin config
-var minecraftVersionStr = "1.19.2"
+var minecraftVersionStr = "1.20.1"
 ext.pluginName = "Hmarket"
 ext.pluginname = ext.pluginName.toLowerCase()
 ext.majorVersion = 0
@@ -27,6 +27,7 @@ runServer {
 repositories {
     mavenCentral()
     maven { url 'https://repo.papermc.io/repository/maven-public/' }
+    maven { url "https://repo.dmulloy2.net/repository/public/" }
     maven { name 'NyaaCat'; url 'https://ci.nyaacat.com/maven/' }
 }
 java {
@@ -37,11 +38,12 @@ java {
 dependencies {
     compileOnly("io.papermc.paper:paper-api:$minecraftVersion-R0.1-SNAPSHOT")
     // other nyaa plugins
-    compileOnly('cat.nyaa:nyaacore:9.2.11-SNAPSHOT')
-    compileOnly('cat.nyaa:aolib:1.1.63')
+    compileOnly('cat.nyaa:nyaacore:9.2.2-SNAPSHOT')
     compileOnly('cat.nyaa:ecore:0.3.3')
-
     compileOnly 'org.jetbrains:annotations:23.0.0'
+    compileOnly 'com.comphenix.protocol:ProtocolLib:5.0.0'
+    implementation "net.kyori:adventure-api:4.14.0"
+    implementation("net.kyori:adventure-platform-bukkit:4.3.0")
 }
 
 compileJava {

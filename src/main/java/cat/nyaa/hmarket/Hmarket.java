@@ -1,13 +1,14 @@
 package cat.nyaa.hmarket;
 
-import cat.nyaa.aolib.aoui.UIManager;
 import cat.nyaa.ecore.EconomyCore;
 import cat.nyaa.hmarket.api.HMarketAPI;
 import cat.nyaa.hmarket.command.CommandManager;
 import cat.nyaa.hmarket.config.HMConfig;
 import cat.nyaa.hmarket.db.HmarketDatabaseManager;
 import cat.nyaa.hmarket.listener.HMListenerManager;
+import cat.nyaa.hmarket.message.AoMessage;
 import cat.nyaa.hmarket.task.HMTaskManager;
+import cat.nyaa.hmarket.ui.HMarketViewServer;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Contract;
@@ -15,8 +16,6 @@ import org.jetbrains.annotations.Nullable;
 
 public final class Hmarket extends JavaPlugin {
 
-    @Nullable
-    public static UIManager uiManager;
     private static Hmarket instance;
     @Nullable
     public EconomyCore economyProvider;
@@ -28,6 +27,8 @@ public final class Hmarket extends JavaPlugin {
     private HMTaskManager taskManager;
     private HMListenerManager listenerManager;
     private HMarketAPI api;
+    private HMarketViewServer viewServer;
+    private AoMessage aoMessage;
 
     public static Hmarket getInstance() {
         return instance;
@@ -56,16 +57,24 @@ public final class Hmarket extends JavaPlugin {
             this.getServer().getPluginManager().disablePlugin(this);
             return;
         }
-        uiManager = new UIManager(this);
         this.hmConfig = new HMConfig(this);
         this.i18n = new HMI18n(this, hmConfig.language);
         this.commandManager = new CommandManager(this, i18n);
         databaseManager = new HmarketDatabaseManager(this);
         this.taskManager = new HMTaskManager(this);
+        this.viewServer = new HMarketViewServer(this);
+        this.aoMessage = new AoMessage(this);
         this.listenerManager = new HMListenerManager(this);
         this.api = new HMarketAPI(databaseManager, economyProvider, hmConfig);
     }
 
+    public AoMessage getAoMessage() {
+        return aoMessage;
+    }
+
+    public HMarketViewServer getViewServer() {
+        return viewServer;
+    }
 
     private boolean setupEconomy() {
         var rsp = Bukkit.getServicesManager().getRegistration(EconomyCore.class);
@@ -82,10 +91,6 @@ public final class Hmarket extends JavaPlugin {
             databaseManager.close();
             databaseManager = null;
         }
-        if (uiManager != null) {
-            uiManager.destructor();
-            uiManager = null;
-        }
         if (taskManager != null) {
             taskManager.destructor();
             taskManager = null;
@@ -93,6 +98,14 @@ public final class Hmarket extends JavaPlugin {
         if (listenerManager != null) {
             listenerManager.destructor();
             listenerManager = null;
+        }
+        if(aoMessage != null){
+            aoMessage.destructor();
+            aoMessage = null;
+        }
+        if(viewServer != null){
+            viewServer.destrutor();
+            viewServer = null;
         }
         instance = null;
     }

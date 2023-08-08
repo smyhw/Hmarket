@@ -1,24 +1,21 @@
-package cat.nyaa.hmarket.api.impl;
+package cat.nyaa.hmarket.api.implementations;
 
-import cat.nyaa.aolib.database.SimpleKVCache;
-import cat.nyaa.aolib.utils.TaskUtils;
 import cat.nyaa.hmarket.HMI18n;
+import cat.nyaa.hmarket.Hmarket;
 import cat.nyaa.hmarket.api.HMarketAPI;
 import cat.nyaa.hmarket.api.IMarketShopLocation;
 import cat.nyaa.hmarket.api.data.BlockLocationData;
 import cat.nyaa.hmarket.db.data.ShopLocationData;
-import cat.nyaa.hmarket.utils.HMLogUtils;
-import cat.nyaa.hmarket.utils.HMUiUtils;
-import cat.nyaa.hmarket.utils.KeyUtils;
-import cat.nyaa.hmarket.utils.TimeUtils;
+import cat.nyaa.hmarket.utils.*;
 import com.google.common.collect.Lists;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
-import org.bukkit.block.data.type.WallSign;
+import org.bukkit.block.data.type.WallHangingSign;
 import org.bukkit.entity.Player;
-import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.jetbrains.annotations.NotNull;
@@ -65,7 +62,8 @@ public class ShopLocationImpl implements IMarketShopLocation {
 
             @Override
             public CompletableFuture<Boolean> insert(@NotNull BlockLocationData key, @NotNull ShopLocationData value) {
-                if (!value.getBlockLocationData().equals(key)) return CompletableFuture.completedFuture(false);
+                if (!value.getBlockLocationData().equals(key))
+                    return CompletableFuture.completedFuture(false);
                 return marketApi.getDatabaseManager().insertShopLocation(value)
                         .thenApply(result -> {
                             if (result.isEmpty()) return false;
@@ -96,11 +94,14 @@ public class ShopLocationImpl implements IMarketShopLocation {
 
 
     @Override
-    public void onSignClick(@NotNull BlockLocationData blockLocationData, Player player, @NotNull Action action) {
-        if (action != Action.RIGHT_CLICK_BLOCK) return;
+    public void onSignClick(@NotNull BlockLocationData blockLocationData, Player player, @NotNull PlayerInteractEvent event) {
         if (!cache.containsKey(blockLocationData)) return;
         var shopLocationData = cache.get(blockLocationData);
-        HMUiUtils.openShopUi(player, shopLocationData.market());
+        event.setCancelled(true);
+        var playerName = Bukkit.getOfflinePlayer(shopLocationData.market()).getName();
+        Hmarket.getInstance().getViewServer().createViewForPlayer(player, shopLocationData.market(),
+                HMI18n.format("info.ui.title.shop.user", playerName));
+        Hmarket.getInstance().getViewServer().openViewForPlayer(player);
     }
 
     @Override
@@ -109,8 +110,9 @@ public class ShopLocationImpl implements IMarketShopLocation {
         if (!lines.get(0).equals(Component.text(SIGN_LINE0))) return;
 
         if (cache.containsKey(fromLocation)) {
-            HMLogUtils.logWarning("Shop already exists at " + fromLocation);
-            HMI18n.send(owner, "info.sign.occupied");
+            // it's normal in mc 1.20
+            // HMLogUtils.logWarning("Shop already exists at " + fromLocation);
+            // HMI18n.send(owner, "info.sign.occupied");
             return;
         }
 
@@ -126,10 +128,15 @@ public class ShopLocationImpl implements IMarketShopLocation {
                 .thenAccept(
                         result1 -> {
                             if (result1.isEmpty()) {
-                                HMI18n.sendSync(ownerId, "info.database_error");
+                                HMI18n.sendSync(ownerId, "info.sign.database_error");
                             } else if (result1.get() > 0) {
                                 HMI18n.sendSync(ownerId, "info.sign.created");
                                 cache.getAndUpdateCache(fromLocation);
+                                Bukkit.getScheduler().runTask(Hmarket.getInstance(), () -> {
+                                    var sign = ((Sign) block.getState());
+                                    sign.setWaxed(true);
+                                    sign.update();
+                                });
                             } else {
                                 HMI18n.sendSync(ownerId, "info.sign.create_failed");
                             }
@@ -138,7 +145,7 @@ public class ShopLocationImpl implements IMarketShopLocation {
                 .whenComplete(
                         (result1, throwable) -> {
                             if (throwable != null) {
-                                HMI18n.sendSync(ownerId, "info.database_error");
+                                HMI18n.sendSync(ownerId, "info.sign.database_error");
                                 HMLogUtils.logWarning("Failed to create shop at " + fromLocation);
                                 throwable.printStackTrace();
                             }
@@ -179,11 +186,13 @@ public class ShopLocationImpl implements IMarketShopLocation {
         );
         for (Block b : nearby) {
             if (b.getState() instanceof Sign signState) {
+                if(signState.getBlockData() instanceof WallHangingSign){
+                    return false; // skip check for WallHangingSign
+                }
                 var baseBlock = getSignBaseBlock(signState);
                 if (baseBlock.getLocation().equals(block.getLocation())) {
                     var signLocation = BlockLocationData.fromLocation(b.getLocation());
                     if (cache.containsKey(signLocation)) {
-
                         if (player != null) {
                             HMI18n.send(player, "info.sign.nearby-protected");
                         }
@@ -205,23 +214,26 @@ public class ShopLocationImpl implements IMarketShopLocation {
             HMI18n.send(player, "info.sign.not-owner");
             return true;
         }
-            return false;
+        return false;
 
     }
 
     private Block getSignBaseBlock(Sign block) {
         BlockFace face;
-        if (block.getBlockData() instanceof WallSign wallSign) {
+        if (block.getBlockData() instanceof org.bukkit.block.data.type.WallSign wallSign) {
             face = wallSign.getFacing();
+        } else if (block.getBlockData() instanceof org.bukkit.block.data.type.HangingSign hangingSign) {
+            face = BlockFace.DOWN;
         } else if (block.getBlockData() instanceof org.bukkit.block.data.type.Sign) {
             face = BlockFace.UP;
         } else {
-            @SuppressWarnings("deprecation") final org.bukkit.material.Sign signMat = (org.bukkit.material.Sign) block.getData();
-            if (!signMat.isWallSign()) {
-                face = BlockFace.UP;
-            } else {
-                face = signMat.getFacing();
-            }
+//            @SuppressWarnings("deprecation") final org.bukkit.material.Sign signMat = (org.bukkit.material.Sign) block.getData();
+//            if (!signMat.isWallSign()) {
+//                face = BlockFace.UP;
+//            } else {
+//                face = signMat.getFacing();
+//            }
+            throw new RuntimeException("Not detectable sign type.");
         }
         return block.getBlock().getRelative(face.getOppositeFace());
     }

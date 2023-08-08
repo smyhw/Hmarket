@@ -2,15 +2,20 @@ package cat.nyaa.hmarket.command;
 
 import cat.nyaa.hmarket.HMI18n;
 import cat.nyaa.hmarket.Hmarket;
+import cat.nyaa.hmarket.command.sub.HMSignShopCommand;
+import cat.nyaa.hmarket.ui.HMarketViewServer;
 import cat.nyaa.hmarket.utils.HMMathUtils;
-import cat.nyaa.hmarket.utils.HMUiUtils;
 import cat.nyaa.hmarket.utils.MarketIdUtils;
 import cat.nyaa.nyaacore.ILocalizer;
 import cat.nyaa.nyaacore.cmdreceiver.Arguments;
 import cat.nyaa.nyaacore.cmdreceiver.CommandReceiver;
 import cat.nyaa.nyaacore.cmdreceiver.SubCommand;
+import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import static cat.nyaa.hmarket.HMI18n.getComponentOfItem;
 
 public class HMMarketCommand extends CommandReceiver {
     private final CommandManager commandManager;
@@ -24,13 +29,18 @@ public class HMMarketCommand extends CommandReceiver {
         this.commandManager = commandManager;
     }
 
-    @SubCommand(value = "view", isDefaultCommand = true, permission = "hmarket.mall")
-    public void view(CommandSender sender, Arguments args) {
+    @SubCommand(value = "shop", permission = "hmarket.shop")
+    public HMSignShopCommand shop;
+
+    @SubCommand(value = "mall", isDefaultCommand = true, permission = "hmarket.mall")
+    public void mall(CommandSender sender, Arguments args) {
         if (!(sender instanceof Player player)) {
             HMI18n.send(sender, "command.only-player-can-do");
             return;
         }
-        HMUiUtils.openShopUi(player, MarketIdUtils.getSystemShopId());
+        Hmarket.getInstance().getViewServer().createViewForPlayer(player,MarketIdUtils.getSystemShopId(),
+                HMI18n.format("info.ui.title.shop.system"));
+        Hmarket.getInstance().getViewServer().openViewForPlayer(player);
     }
 
     @SubCommand(value = "offer", permission = "hmarket.mall")
@@ -48,7 +58,8 @@ public class HMMarketCommand extends CommandReceiver {
         }
         var item = player.getInventory().getItemInMainHand();
         if (item.getType().isAir() || item.getAmount() <= 0) {
-            HMI18n.send(sender, "command.invalid-item-in-hand");
+            Bukkit.broadcast(HMI18n.format("info.market.sell", player.getName())
+                    .append(getComponentOfItem(item)));
             return;
         }
         hmApi.getMarketAPI().commandOffer(player, MarketIdUtils.getSystemShopId(), item, price);

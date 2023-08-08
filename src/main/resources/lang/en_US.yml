@@ -4,9 +4,9 @@ command:
     list:
       info: "shop: {{type}}, at [x:{{x}},y:{{y}},z:{{z}},world:{{world}}] ,owner:{{owner}} ,market:{{market}}"
       empty: "No shops found"
-    not-owner: You are not the owner of this shop.
-  invalid-target-location: Invalid target location
-  unknown-error: Unknown error
+    not-owner: "You are not the owner of this shop."
+  invalid-target-location: "Invalid target location"
+  unknown-error: "Unknown error"
   database-error: 'Database error'
   task-failed: "Error getting task status"
   offer:
@@ -14,8 +14,8 @@ command:
   not-enough-space: "Not enough space"
   not-enough-money: "You don't have enough money to do that."
   only-player-can-do: "Only player can do this"
-  invalid-price: Invalid price
-  invalid-item-in-hand: You can't use that item in your hand!
+  invalid-price: "Invalid price"
+  invalid-item-in-hand: "You can't use that item in your hand!"
   not-enough-item-in-hand: "You don't have enough item in hand."
 info:
   sign:
@@ -24,17 +24,37 @@ info:
     database_error: "Database error"
     destroyed: "Sign destroyed"
     create_failed: "Failed to create, the limit may have been reached"
-    created: "Sign created"
+    created: "Store Sign created. "
     occupied: 'Store space is occupied'
   market:
-    sold: "Sold %s * %s for %s (total price: %s)"
+    sold_notice1: "Player %s has made a purchase from your store:"
+    sold_notice2: "Your got %s, taxes paid: %s (%s%)."
     sellfee: "Paid the listing fee: %s"
     sell: "Player %s has added a new item to the Global Store:"
   ui:
     title:
       shop:
-        system: "Global Store"
-        user: "%s's sign store"
+        system: "&8G&7l&fobal Store"
+        user: "&8%s&7's &fsign store"
+    element:
+        loading: "&fLoading..."
+        loading_description: "&7Please wait for a while..."
+        refresh: "&fRefresh"
+        refresh_description: "&7Refresh the shop view"
+        next_page: "&fNext page"
+        previous_page: "&fPrevious_page"
+        not_available: "&fNot available"
+        not_available_description: "&7This item is no longer available"
+        empty_store: "&fEmpty store"
+        empty_store_description: "&7No goods on the shelf"
+        pending: "&fPending..."
+        pending_description: "&7Working for your purchase..."
+        purchased: "&fPurchased"
+        purchased_description: "&7You have purchased this item"
+        withdrawn: "&fWithdrawn"
+        withdrawn_description: "&7You have withdrawn this item"
+        action_needed: "&fError"
+        action_needed_description: "&7Failed to buy. Reason: %s"
     item:
       buy_item: "Click to buy item"
       tax: "tax: %s%%, price including tax: %s"
@@ -42,10 +62,10 @@ info:
       owner: "Owner: %s"
       owner_item_back: "Click to get your item back"
     market:
-      withdraw_success: "Your item were successfully taken back."
-      player_owns_item: "You cannot buy your own item"
-      item_not_found: "Item %s not found"
-      buy_failed: "Buy failed"
-      buy_success: "buy success"
-      out_of_stock: "Out of stock"
-      not_enough_money: "You don't have enough money to buy this item."
+      player_owns_item: "&7You cannot buy your own item"
+      item_not_found: "&7Item %s not found"
+      buy_failed: "&7Buy failed"
+      buy_success: "&7buy success"
+      out_of_stock: "&7Out of stock"
+      not_enough_money: "&7You don't have enough money to buy this item"
+      internal_error_occurred: "&7internal_error_occurred: %s"

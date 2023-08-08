@@ -13,7 +13,7 @@ import java.util.concurrent.CompletableFuture;
 
 public interface IMarketAPI {
 
-    CompletableFuture<MarketOfferResult> offer(Player player, UUID marketId, ItemStack items, double price);
+    CompletableFuture<MarketOfferResult> offer(Player playerUniqueID, UUID marketId, ItemStack items, double price);
 
     void commandOffer(@NotNull Player player, @NotNull UUID marketId, @NotNull ItemStack item, double price);
 
@@ -26,5 +26,5 @@ public interface IMarketAPI {
 
     double getTaxRate(@NotNull ShopItemData shopItemData);
 
-    void commandBuy(@NotNull Player player, @NotNull UUID marketId, int itemId, int amount) ;
+    void commandBuy(@NotNull Player player, @NotNull UUID marketId, int itemId, int amount);
 }

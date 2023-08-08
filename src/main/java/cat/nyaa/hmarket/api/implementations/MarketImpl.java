@@ -1,20 +1,20 @@
-package cat.nyaa.hmarket.api.impl;
+package cat.nyaa.hmarket.api.implementations;
 
-import cat.nyaa.aolib.message.AoMessage;
-import cat.nyaa.aolib.utils.TaskUtils;
 import cat.nyaa.hmarket.HMI18n;
+import cat.nyaa.hmarket.Hmarket;
 import cat.nyaa.hmarket.api.HMarketAPI;
 import cat.nyaa.hmarket.api.IMarketAPI;
 import cat.nyaa.hmarket.api.data.MarketBuyResult;
 import cat.nyaa.hmarket.api.data.MarketItemDataResult;
 import cat.nyaa.hmarket.api.data.MarketOfferResult;
 import cat.nyaa.hmarket.db.data.ShopItemData;
+import cat.nyaa.hmarket.message.AoMessage;
 import cat.nyaa.hmarket.utils.*;
-import cat.nyaa.nyaacore.Message;
 import cat.nyaa.nyaacore.Pair;
 import cat.nyaa.nyaacore.utils.InventoryUtils;
 import cat.nyaa.nyaacore.utils.ItemStackUtils;
 import com.google.common.util.concurrent.AtomicDouble;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Contract;
@@ -27,12 +27,13 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+import static cat.nyaa.hmarket.HMI18n.getComponentOfItem;
+
 public class MarketImpl implements IMarketAPI {
     private final HMarketAPI marketApi;
 
     public MarketImpl(HMarketAPI marketApi) {
         this.marketApi = marketApi;
-
     }
 
     @Override
@@ -84,12 +85,18 @@ public class MarketImpl implements IMarketAPI {
                     switch (result.status()) {
                         case SUCCESS ->
                                 HMI18n.sendSync(playerId, "command.offer.success", result.itemId().orElse(-1));
-                        case NOT_ENOUGH_ITEMS -> HMI18n.sendSync(playerId, "command.not-enough-item-in-hand");
-                        case NOT_ENOUGH_MONEY -> HMI18n.sendSync(playerId, "command.not-enough-money");
-                        case NOT_ENOUGH_SPACE -> HMI18n.sendSync(playerId, "command.not-enough-space");
-                        case TASK_FAILED -> HMI18n.sendSync(playerId, "command.task-failed");
-                        case DATABASE_ERROR -> HMI18n.sendSync(playerId, "command.database-error");
-                        case INVALID_PRICE -> HMI18n.sendSync(playerId, "command.invalid-price");
+                        case NOT_ENOUGH_ITEMS ->
+                                HMI18n.sendSync(playerId, "command.not-enough-item-in-hand");
+                        case NOT_ENOUGH_MONEY ->
+                                HMI18n.sendSync(playerId, "command.not-enough-money");
+                        case NOT_ENOUGH_SPACE ->
+                                HMI18n.sendSync(playerId, "command.not-enough-space");
+                        case TASK_FAILED ->
+                                HMI18n.sendSync(playerId, "command.task-failed");
+                        case DATABASE_ERROR ->
+                                HMI18n.sendSync(playerId, "command.database-error");
+                        case INVALID_PRICE ->
+                                HMI18n.sendSync(playerId, "command.invalid-price");
                     }
                 }
         );
@@ -119,9 +126,10 @@ public class MarketImpl implements IMarketAPI {
         HMLogUtils.logInfo("Player " + player.getName() + " has offered " + items.getType() + " * " + items.getAmount() + " for " + price + " to market " + marketId);
         HMI18n.send(player, "info.market.sellfee", getListingFee(marketId));
         if (marketId.equals(MarketIdUtils.getSystemShopId())) {
-            new Message(HMI18n.format("info.market.sell", player.getName())).append(items).broadcast();
+            Bukkit.broadcast(HMI18n.format("info.market.sell", player.getName())
+                    .append(getComponentOfItem(items)));
         }
-        HMUiUtils.updateShopUi(marketId);
+        //HMUiUtils.updateShopUi(marketId);
     }
 
 
@@ -189,7 +197,7 @@ public class MarketImpl implements IMarketAPI {
                     return MarketBuyResult.fail(MarketBuyResult.MarketBuyStatus.CANNOT_BUY_ITEM);
                 }
                 var itemResult = TaskUtils.async.getSyncDefault(() -> {
-                    ItemStack itemStack = giveItemAndUpdateShopSync(player, shopItemData.itemNbt(), marketId, amount);
+                    ItemStack itemStack = giveItem(player, shopItemData.itemNbt(), marketId, amount);
                     if (paidTax.get() > 0) {
                         if (!marketApi.getEconomyCore().depositSystemVault(paidTax.get())) {
                             HMLogUtils.logWarning("Transaction Failed:Failed to deposit system vault");
@@ -204,7 +212,20 @@ public class MarketImpl implements IMarketAPI {
                             HMLogUtils.logWarning("from: " + playerId);
                         }
                     }
-                    onShopSold(player, shopItemData, itemStack, amount);
+
+                    //send offline (or online if online) message
+                    var sold_message_notice1 = HMI18n.format("info.market.sold_notice1", player.getName());
+                    var sold_message_notice2 = HMI18n.format("info.market.sold_notice2", amount, paidTax, getTaxRate(marketId));
+
+                    AoMessage.getInstanceOptional().ifPresent(
+                            aoMessage -> aoMessage.sendMessageTo(
+                                    shopItemData.owner(),
+                                    sold_message_notice1.append(HMI18n.getComponentOfItem(itemStack)).appendNewline().append(sold_message_notice2)
+                            )
+                    );
+
+//                    onShopSold(player, shopItemData, itemStack, amount);
+
                     HMLogUtils.logInfo("Player " + playerId + " bought " + itemStack + " from market " + marketId);
                     HMLogUtils.logInfo("cost: " + paidCost.get() + " tax: " + paidTax.get() + "," + shopItemData.owner() + " received: " + (paidCost.get() - paidTax.get()));
                     return true;
@@ -223,11 +244,11 @@ public class MarketImpl implements IMarketAPI {
 
     }
 
-    private @NotNull ItemStack giveItemAndUpdateShopSync(@NotNull Player player, @NotNull String itemNbt, @NotNull UUID marketId, int amount) {
+    private @NotNull ItemStack giveItem(@NotNull Player player, @NotNull String itemNbt, @NotNull UUID marketId, int amount) {
         ItemStack itemStack = ItemStackUtils.itemFromBase64(itemNbt).clone();
         itemStack.setAmount(amount);
         HMInventoryUtils.giveOrDropItem(player, itemStack);
-        HMUiUtils.updateShopUi(marketId);
+        //HMUiUtils.updateShopUi(marketId);
         return itemStack;
     }
 
@@ -241,7 +262,9 @@ public class MarketImpl implements IMarketAPI {
                             if (withdrawResult.isEmpty() || !withdrawResult.get()) {
                                 return MarketBuyResult.fail(MarketBuyResult.MarketBuyStatus.CANNOT_BUY_ITEM);
                             }
-                            giveItemAndUpdateShopSync(player, shopItemData.itemNbt(), shopItemData.market(), amount);
+                            Bukkit.getScheduler().runTask(Hmarket.getInstance(),()->
+                                giveItem(player, shopItemData.itemNbt(), shopItemData.market(), amount)
+                            );
                             return MarketBuyResult.success(true);
                         }
                 );
@@ -275,15 +298,20 @@ public class MarketImpl implements IMarketAPI {
     public void commandBuy(@NotNull Player player, @NotNull UUID marketId, int itemId, int amount) {
         buy(player, marketId, itemId, amount).thenAccept((marketBuyResult) -> {
             switch (marketBuyResult.status()) {
-                case SUCCESS -> HMI18n.sendSync(player.getUniqueId(), "info.ui.market.buy_success");
-                case WITHDRAW_SUCCESS -> HMI18n.sendSync(player.getUniqueId(), "info.ui.market.withdraw_success");
-                case OUT_OF_STOCK -> HMI18n.sendSync(player.getUniqueId(), "info.ui.market.out_of_stock");
+                case SUCCESS ->
+                        HMI18n.sendSync(player.getUniqueId(), "info.ui.market.buy_success");
+                case WITHDRAW_SUCCESS ->
+                        HMI18n.sendSync(player.getUniqueId(), "info.ui.market.withdraw_success");
+                case OUT_OF_STOCK ->
+                        HMI18n.sendSync(player.getUniqueId(), "info.ui.market.out_of_stock");
                 case WRONG_MARKET, ITEM_NOT_FOUND ->
                         HMI18n.sendSync(player.getUniqueId(), "info.ui.market.item_not_found", itemId);
-                case NOT_ENOUGH_MONEY -> HMI18n.sendSync(player.getUniqueId(), "info.ui.market.not_enough_money");
+                case NOT_ENOUGH_MONEY ->
+                        HMI18n.sendSync(player.getUniqueId(), "info.ui.market.not_enough_money");
                 case TASK_FAILED, TRANSACTION_ERROR, CANNOT_BUY_ITEM ->
                         HMI18n.sendSync(player.getUniqueId(), "info.ui.market.buy_failed");
-                case PLAYER_OWNS_ITEM -> HMI18n.sendSync(player.getUniqueId(), "info.ui.market.player_owns_item");
+                case PLAYER_OWNS_ITEM ->
+                        HMI18n.sendSync(player.getUniqueId(), "info.ui.market.player_owns_item");
             }
         });
     }
@@ -382,7 +410,6 @@ public class MarketImpl implements IMarketAPI {
                                 } else {
                                     HMLogUtils.logInfo("Item " + shopItemData.itemId() + " removed from shop " + shopItemData.market());
                                 }
-
                             }
                     );
                     HMLogUtils.logInfo("Item " + shopItemData.itemId() + " removed from shop " + shopItemData.market());

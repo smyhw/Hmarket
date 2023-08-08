@@ -1,11 +1,11 @@
 package cat.nyaa.hmarket.db;
 
-import cat.nyaa.aolib.utils.DBFunctionUtils;
-import cat.nyaa.aolib.utils.DatabaseUtils;
 import cat.nyaa.hmarket.Hmarket;
 import cat.nyaa.hmarket.api.data.BlockLocationData;
 import cat.nyaa.hmarket.db.data.ShopItemData;
 import cat.nyaa.hmarket.db.data.ShopLocationData;
+import cat.nyaa.hmarket.utils.DBFunctionUtils;
+import cat.nyaa.hmarket.utils.DatabaseUtils;
 import cat.nyaa.hmarket.utils.HMLogUtils;
 import cat.nyaa.hmarket.utils.TimeUtils;
 import cat.nyaa.nyaacore.utils.ItemStackUtils;
@@ -33,10 +33,6 @@ public class HmarketDatabaseManager {
     private final Hmarket plugin;
 
 
-    public Hmarket getPlugin() {
-        return plugin;
-    }
-
     public HmarketDatabaseManager(Hmarket plugin) {
         this.plugin = plugin;
         HMLogUtils.logInfo("Connecting to database...");
@@ -62,6 +58,10 @@ public class HmarketDatabaseManager {
     public static <U> @NotNull CompletableFuture<U> supplyAsync(Supplier<U> supplier) {
         if (databaseExecutor.isShutdown()) throw new RuntimeException("playerDataExecutor is shutdown");
         return CompletableFuture.supplyAsync(supplier, databaseExecutor);
+    }
+
+    public Hmarket getPlugin() {
+        return plugin;
     }
 
     private void initDatabase(@NotNull Hmarket plugin) {

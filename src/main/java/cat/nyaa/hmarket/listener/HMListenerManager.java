@@ -13,11 +13,12 @@ public class HMListenerManager {
     private final List<Listener> listerList = new ArrayList<>();
 
     public HMListenerManager(Hmarket plugin) {
-       this.register(new HMSignShopListener(), plugin);
-       this.register(new HMBlockEnvironmentListener(), plugin);
+        this.register(new HMSignShopListener(), plugin);
+        this.register(new HMBlockEnvironmentListener(), plugin);
+        this.register(plugin.getViewServer(), plugin);
     }
 
-    public  <T extends Listener> T register(T listener, @NotNull Hmarket plugin) {
+    public <T extends Listener> T register(T listener, @NotNull Hmarket plugin) {
         plugin.getServer().getPluginManager().registerEvents(listener, plugin);
         this.listerList.add(listener);
         return listener;

@@ -1,6 +1,5 @@
 package cat.nyaa.hmarket.utils;
 
-import cat.nyaa.aolib.utils.TaskUtils;
 import cat.nyaa.hmarket.Hmarket;
 
 import java.util.logging.Logger;

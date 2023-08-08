@@ -5,7 +5,6 @@ api-version: 1.19
 prefix: Hmarket
 depend:
   - NyaaCore
-  - aolib
   - ECore
 commands:
   hmarket_market:

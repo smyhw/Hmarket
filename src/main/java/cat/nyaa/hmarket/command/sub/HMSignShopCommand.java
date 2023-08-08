@@ -1,9 +1,9 @@
 package cat.nyaa.hmarket.command.sub;
 
-import cat.nyaa.aolib.utils.CommandUtils;
 import cat.nyaa.hmarket.HMI18n;
 import cat.nyaa.hmarket.Hmarket;
 import cat.nyaa.hmarket.api.data.BlockLocationData;
+import cat.nyaa.hmarket.utils.CommandUtils;
 import cat.nyaa.hmarket.utils.HMMathUtils;
 import cat.nyaa.hmarket.utils.PlayerNameUtils;
 import cat.nyaa.nyaacore.ILocalizer;

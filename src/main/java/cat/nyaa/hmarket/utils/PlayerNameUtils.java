@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public class PlayerNameUtils {
     @NotNull
-    public static String getPlayerNameById(UUID playerId){
-       return Objects.requireNonNullElse(Bukkit.getOfflinePlayer(playerId).getName(),playerId.toString());
+    public static String getPlayerNameById(UUID playerId) {
+        return Objects.requireNonNullElse(Bukkit.getOfflinePlayer(playerId).getName(), playerId.toString());
     }
 }

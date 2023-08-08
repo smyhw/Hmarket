@@ -15,14 +15,6 @@ public class HMMainCommand extends CommandReceiver {
         this.commandManager = commandManager;
     }
 
-    @SubCommand(value = "shop", permission = "hmarket.shop")
-    public HMSignShopCommand shop;
-
-    @SubCommand(value = "mall", permission = "hmarket.mall")
-    public void mall(CommandSender sender, Arguments args) {
-        commandManager.marketCommand.view(sender, args);
-    }
-
     @SubCommand(value = "reload", permission = "hmarket.reload")
     public void reload(CommandSender sender, Arguments args) {
         commandManager.getPlugin().onReload();

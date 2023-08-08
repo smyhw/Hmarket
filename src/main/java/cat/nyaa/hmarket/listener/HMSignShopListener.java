@@ -6,6 +6,7 @@ import org.bukkit.block.Sign;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -15,16 +16,18 @@ public class HMSignShopListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onSignInteract(@NotNull PlayerInteractEvent event) {
         if (!event.hasBlock()) return;
-        if(event.getPlayer().isSneaking()) return;
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+        if (event.getPlayer().isSneaking()) return;
         var shopLocation = Hmarket.getAPI() != null ? Hmarket.getAPI().getShopLocationApi() : null;
         if (shopLocation == null) return;
         var clickedBlock = event.getClickedBlock();
         if (clickedBlock == null) return;
-        if (!(clickedBlock.getState() instanceof Sign signStale)) return;//no sign
+        if (!(clickedBlock.getState() instanceof Sign signState)) return;//no sign
+        if (!signState.isWaxed()) return;
         shopLocation.onSignClick(
                 BlockLocationData.fromLocation(event.getClickedBlock().getLocation()),
                 event.getPlayer(),
-                event.getAction()
+                event
         );
     }
 
@@ -52,6 +55,4 @@ public class HMSignShopListener implements Listener {
                 event.getPlayer().getUniqueId()
         );
     }
-
-
 }

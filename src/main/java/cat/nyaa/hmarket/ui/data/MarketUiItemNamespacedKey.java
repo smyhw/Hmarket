@@ -8,14 +8,16 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-public record MarketUiItemNamespacedKey(NamespacedKey itemId, NamespacedKey MarketId, NamespacedKey ItemTime) {
+public record MarketUiItemNamespacedKey(NamespacedKey itemId, NamespacedKey MarketId, NamespacedKey ItemTime,
+                                        NamespacedKey ItemOwnerUniqueID) {
     static MarketUiItemNamespacedKey instance = null;
 
     public MarketUiItemNamespacedKey(@NotNull HMarketAPI api) {
         this(
                 new NamespacedKey(api.getDatabaseManager().getPlugin(), "market_item_id"),
                 new NamespacedKey(api.getDatabaseManager().getPlugin(), "market_market_id"),
-                new NamespacedKey(api.getDatabaseManager().getPlugin(), "market_item_time")
+                new NamespacedKey(api.getDatabaseManager().getPlugin(), "market_item_time"),
+                new NamespacedKey(api.getDatabaseManager().getPlugin(), "market_item_owner_unique_id")
         );
     }
 

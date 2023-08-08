@@ -22,6 +22,17 @@ import javax.annotation.Nullable;
 import java.util.Optional;
 
 public class HMBlockEnvironmentListener implements Listener {
+    private static Optional<IMarketShopLocation> getShopLocation() {
+        return Optional.ofNullable(Hmarket.getAPI() != null ? Hmarket.getAPI().getShopLocationApi() : null);
+    }
+
+    private static boolean isBlockProtected(Block block, @Nullable Player player) {
+        return getShopLocation().map(shopLocation -> shopLocation.isBlockProtected(block, player)).orElseGet(() -> {
+            HMLogUtils.logWarning("HMarket is not loaded, can not break block");
+            return true;
+        });
+    }
+
     @EventHandler(priority = EventPriority.HIGH)
     public void onEntityExplode(@NotNull EntityExplodeEvent event) {
         event.blockList().removeIf(block -> isBlockProtected(block, null));
@@ -81,16 +92,5 @@ public class HMBlockEnvironmentListener implements Listener {
         if (isBlockProtected(block, event.getPlayer())) {
             event.setCancelled(true);
         }
-    }
-
-    private static Optional<IMarketShopLocation> getShopLocation() {
-        return Optional.ofNullable(Hmarket.getAPI() != null ? Hmarket.getAPI().getShopLocationApi() : null);
-    }
-
-    private static boolean isBlockProtected(Block block, @Nullable Player player) {
-        return getShopLocation().map(shopLocation -> shopLocation.isBlockProtected(block, player)).orElseGet(() -> {
-            HMLogUtils.logWarning("HMarket is not loaded, can not break block");
-            return true;
-        });
     }
 }

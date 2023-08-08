@@ -7,6 +7,7 @@ import java.util.UUID;
 public class MarketIdUtils {
     private static final UUID systemShopId = UUID.nameUUIDFromBytes("HM_system_shop".getBytes());
     private static final UUID unknownId = UUID.fromString("00000000-0000-0000-0000-000000000000");
+
     public static UUID parseMarketId(@NotNull String marketId) {
         if (marketId.equalsIgnoreCase("system")) {
             return systemShopId;

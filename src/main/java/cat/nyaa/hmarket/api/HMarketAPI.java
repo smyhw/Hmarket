@@ -1,8 +1,8 @@
 package cat.nyaa.hmarket.api;
 
 import cat.nyaa.ecore.EconomyCore;
-import cat.nyaa.hmarket.api.impl.MarketImpl;
-import cat.nyaa.hmarket.api.impl.ShopLocationImpl;
+import cat.nyaa.hmarket.api.implementations.MarketImpl;
+import cat.nyaa.hmarket.api.implementations.ShopLocationImpl;
 import cat.nyaa.hmarket.config.HMConfig;
 import cat.nyaa.hmarket.db.HmarketDatabaseManager;
 
