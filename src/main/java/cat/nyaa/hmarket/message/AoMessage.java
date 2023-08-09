@@ -46,7 +46,7 @@ public class AoMessage {
         }
         this.plugin = plugin;
         initDB();
-        this.simpleDateFormat = new SimpleDateFormat("yy/MM/dd HH:mm '('Z')'");
+        this.simpleDateFormat = new SimpleDateFormat("'['yy/MM/dd HH:mm Z']'");
         simpleDateFormat.setTimeZone(TimeZone.getDefault());
         this.listener = new MessageListener(plugin);
         instance = this;
@@ -213,7 +213,6 @@ public class AoMessage {
             case JSON ->
                     message = ChatComponentUtils.fromJson(messageData.msg());
             default -> {
-                //TODO i18n
                 message = ChatComponentUtils.fromLegacyText("unknown message type: " + messageData.msgType());
             }
         }

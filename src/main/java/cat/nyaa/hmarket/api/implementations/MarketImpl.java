@@ -221,7 +221,7 @@ public class MarketImpl implements IMarketAPI {
 
                     //send offline (or online if online) message
                     var sold_message_notice1 = HMI18n.format("info.market.sold_notice1", player.getName());
-                    var sold_message_notice2 = HMI18n.format("info.market.sold_notice2", numberFormat.format(paidCost.get() - paidTax.get()), numberFormat.format(paidTax.get()), getTaxRate(marketId) * 100);
+                    var sold_message_notice2 = HMI18n.format("info.market.sold_notice2", numberFormat.format(paidCost.get()), numberFormat.format(paidTax.get()), getTaxRate(marketId) * 100);
 
                     AoMessage.getInstanceOptional().ifPresent(
                             aoMessage -> aoMessage.sendMessageTo(
