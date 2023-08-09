@@ -67,7 +67,8 @@ public class CommandUtils {
         }
 
         public static void executeCommand(Player player, String command, @Nullable String commandPermission, Plugin plugin) {
-            if (command == null || command.length() == 0 || player == null) return;
+            if (command == null || command.length() == 0 || player == null)
+                return;
 
             String permission = Objects.requireNonNullElse(commandPermission, "");
             String cmd = handlePlayerPlaceHolder(player, command);

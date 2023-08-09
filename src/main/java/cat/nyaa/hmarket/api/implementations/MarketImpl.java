@@ -5,7 +5,6 @@ import cat.nyaa.hmarket.Hmarket;
 import cat.nyaa.hmarket.api.HMarketAPI;
 import cat.nyaa.hmarket.api.IMarketAPI;
 import cat.nyaa.hmarket.api.data.MarketBuyResult;
-import cat.nyaa.hmarket.api.data.MarketItemDataResult;
 import cat.nyaa.hmarket.api.data.MarketOfferResult;
 import cat.nyaa.hmarket.db.data.ShopItemData;
 import cat.nyaa.hmarket.message.AoMessage;
@@ -20,6 +19,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -34,6 +34,12 @@ public class MarketImpl implements IMarketAPI {
 
     public MarketImpl(HMarketAPI marketApi) {
         this.marketApi = marketApi;
+    }
+
+    private final NumberFormat numberFormat = NumberFormat.getInstance();
+
+    {
+        numberFormat.setMaximumFractionDigits(2);
     }
 
     @Override
@@ -215,7 +221,7 @@ public class MarketImpl implements IMarketAPI {
 
                     //send offline (or online if online) message
                     var sold_message_notice1 = HMI18n.format("info.market.sold_notice1", player.getName());
-                    var sold_message_notice2 = HMI18n.format("info.market.sold_notice2", amount, paidTax, getTaxRate(marketId));
+                    var sold_message_notice2 = HMI18n.format("info.market.sold_notice2", numberFormat.format(paidCost.get() - paidTax.get()), numberFormat.format(paidTax.get()), getTaxRate(marketId) * 100);
 
                     AoMessage.getInstanceOptional().ifPresent(
                             aoMessage -> aoMessage.sendMessageTo(
@@ -262,8 +268,8 @@ public class MarketImpl implements IMarketAPI {
                             if (withdrawResult.isEmpty() || !withdrawResult.get()) {
                                 return MarketBuyResult.fail(MarketBuyResult.MarketBuyStatus.CANNOT_BUY_ITEM);
                             }
-                            Bukkit.getScheduler().runTask(Hmarket.getInstance(),()->
-                                giveItem(player, shopItemData.itemNbt(), shopItemData.market(), amount)
+                            Bukkit.getScheduler().runTask(Hmarket.getInstance(), () ->
+                                    giveItem(player, shopItemData.itemNbt(), shopItemData.market(), amount)
                             );
                             return MarketBuyResult.success(true);
                         }
@@ -272,24 +278,24 @@ public class MarketImpl implements IMarketAPI {
 
     }
 
-    private void onShopSold(Player player, ShopItemData shopItemData, ItemStack itemStack, int amount) {
-        AoMessage.getInstanceOptional().ifPresent(
-                aoMessage -> aoMessage.sendMessageTo(
-                        shopItemData.owner(),
-                        HMI18n.format(
-                                "info.market.sold",
-                                itemStack.hasItemMeta()
-                                        && itemStack.getItemMeta() != null
-                                        && itemStack.getItemMeta().hasDisplayName() ?
-                                        itemStack.getItemMeta().displayName() : itemStack.getType().name(),
-
-                                amount,
-                                player.getName(),
-                                shopItemData.price() * amount
-                        )
-                )
-        );
-    }
+//    private void onShopSold(Player player, ShopItemData shopItemData, ItemStack itemStack, int amount) {
+//        AoMessage.getInstanceOptional().ifPresent(
+//                aoMessage -> aoMessage.sendMessageTo(
+//                        shopItemData.owner(),
+//                        HMI18n.format(
+//                                "info.market.sold",
+//                                itemStack.hasItemMeta()
+//                                        && itemStack.getItemMeta() != null
+//                                        && itemStack.getItemMeta().hasDisplayName() ?
+//                                        itemStack.getItemMeta().displayName() : itemStack.getType().name(),
+//
+//                                amount,
+//                                player.getName(),
+//                                shopItemData.price() * amount
+//                        )
+//                )
+//        );
+//    }
 
 //    private void onShopSold(UUID marketId, int itemId, ItemStack itemStack, int amount, double price) {
 
@@ -356,14 +362,14 @@ public class MarketImpl implements IMarketAPI {
         return getTaxRate(shopItemData.market());
     }
 
-    public CompletableFuture<MarketItemDataResult> getShopItemData(int itemId) {
-        return marketApi.getDatabaseManager().getShopItemData(itemId).thenApply(optShopItemData -> {
-            if (optShopItemData.isEmpty()) {
-                return MarketItemDataResult.fail(MarketItemDataResult.MarketItemDataStatus.NOT_FOUND);
-            }
-            return MarketItemDataResult.success(optShopItemData.get());
-        });
-    }
+//    public CompletableFuture<MarketItemDataResult> getShopItemData(int itemId) {
+//        return marketApi.getDatabaseManager().getShopItemData(itemId).thenApply(optShopItemData -> {
+//            if (optShopItemData.isEmpty()) {
+//                return MarketItemDataResult.fail(MarketItemDataResult.MarketItemDataStatus.NOT_FOUND);
+//            }
+//            return MarketItemDataResult.success(optShopItemData.get());
+//        });
+//    }
 
 
     @Contract(pure = true)

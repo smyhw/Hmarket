@@ -28,7 +28,7 @@ info:
     occupied: 'Store space is occupied'
   market:
     sold_notice1: "Player %s has made a purchase from your store:"
-    sold_notice2: "Your got %s, taxes paid: %s (%s%)."
+    sold_notice2: "Your got %s, taxes paid: %s (%s%%)."
     sellfee: "Paid the listing fee: %s"
     sell: "Player %s has added a new item to the Global Store:"
   ui:

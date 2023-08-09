@@ -3,14 +3,12 @@ package cat.nyaa.hmarket.command;
 import cat.nyaa.hmarket.HMI18n;
 import cat.nyaa.hmarket.Hmarket;
 import cat.nyaa.hmarket.command.sub.HMSignShopCommand;
-import cat.nyaa.hmarket.ui.HMarketViewServer;
 import cat.nyaa.hmarket.utils.HMMathUtils;
 import cat.nyaa.hmarket.utils.MarketIdUtils;
 import cat.nyaa.nyaacore.ILocalizer;
 import cat.nyaa.nyaacore.cmdreceiver.Arguments;
 import cat.nyaa.nyaacore.cmdreceiver.CommandReceiver;
 import cat.nyaa.nyaacore.cmdreceiver.SubCommand;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -29,7 +27,7 @@ public class HMMarketCommand extends CommandReceiver {
         this.commandManager = commandManager;
     }
 
-    @SubCommand(value = "shop", permission = "hmarket.shop")
+    @SubCommand(value = "my", permission = "hmarket.my")
     public HMSignShopCommand shop;
 
     @SubCommand(value = "mall", isDefaultCommand = true, permission = "hmarket.mall")

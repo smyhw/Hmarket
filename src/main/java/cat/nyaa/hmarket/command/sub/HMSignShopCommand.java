@@ -2,7 +2,6 @@ package cat.nyaa.hmarket.command.sub;
 
 import cat.nyaa.hmarket.HMI18n;
 import cat.nyaa.hmarket.Hmarket;
-import cat.nyaa.hmarket.api.data.BlockLocationData;
 import cat.nyaa.hmarket.utils.CommandUtils;
 import cat.nyaa.hmarket.utils.HMMathUtils;
 import cat.nyaa.hmarket.utils.PlayerNameUtils;
@@ -10,10 +9,7 @@ import cat.nyaa.nyaacore.ILocalizer;
 import cat.nyaa.nyaacore.cmdreceiver.Arguments;
 import cat.nyaa.nyaacore.cmdreceiver.CommandReceiver;
 import cat.nyaa.nyaacore.cmdreceiver.SubCommand;
-import org.bukkit.Location;
-import org.bukkit.block.Sign;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
@@ -29,7 +25,7 @@ public class HMSignShopCommand extends CommandReceiver {
         super(plugin, _i18n);
     }
 
-    @SubCommand(value = "list", permission = "hmarket.shop")
+    @SubCommand(value = "shops", permission = "hmarket.my")
     public void list(CommandSender sender, Arguments args) {
         if (!(sender instanceof Player player)) {
             HMI18n.send(sender, "command.only-player-can-do");
@@ -77,7 +73,7 @@ public class HMSignShopCommand extends CommandReceiver {
         );
     }
 
-    @SubCommand(value = "sell", permission = "hmarket.shop")
+    @SubCommand(value = "offer", permission = "hmarket.my")
     public void sell(CommandSender sender, Arguments args) {
         if (!(sender instanceof Player player)) {
             HMI18n.send(sender, "command.only-player-can-do");
@@ -96,38 +92,37 @@ public class HMSignShopCommand extends CommandReceiver {
             return;
         }
 
-        var targetBlock = player.getTargetBlockExact(10);
-        Location targetLocation = null;
-        if (targetBlock == null || !(targetBlock.getState() instanceof Sign)) {
-            var rayTraceResult = player.getWorld().rayTraceEntities(player.getEyeLocation(), player.getEyeLocation().getDirection(), 10, entity -> entity instanceof ItemFrame);
-            if (rayTraceResult != null) {
-                var entity = rayTraceResult.getHitEntity();
-                if (entity instanceof ItemFrame) {
-                    targetLocation = entity.getLocation();
-                }
-            }
-        } else {
-            targetLocation = targetBlock.getLocation();
-        }
-        if (targetLocation == null || !targetLocation.isWorldLoaded() || targetLocation.getWorld() == null) {
-            HMI18n.send(sender, "command.invalid-target-location");
-            return;
-        }
-
-        var blockLocationData = BlockLocationData.fromLocation(targetLocation);
-
-        hmApi.getShopLocationApi().getLocationData(blockLocationData).ifPresentOrElse(
-                locationData -> {
-                    if (!locationData.owner().equals(player.getUniqueId())) {
-                        HMI18n.send(sender, "command.shop.not-owner");
-                    } else {
-                        hmApi.getMarketAPI().commandOffer(player, player.getUniqueId(), item, price);
-                    }
-                },
-                () -> HMI18n.send(sender, "command.invalid-target-location")
-        );
-
-
+//        var targetBlock = player.getTargetBlockExact(10);
+//        Location targetLocation = null;
+//        if (targetBlock == null || !(targetBlock.getState() instanceof Sign)) {
+//            var rayTraceResult = player.getWorld().rayTraceEntities(player.getEyeLocation(), player.getEyeLocation().getDirection(), 10, entity -> entity instanceof ItemFrame);
+//            if (rayTraceResult != null) {
+//                var entity = rayTraceResult.getHitEntity();
+//                if (entity instanceof ItemFrame) {
+//                    targetLocation = entity.getLocation();
+//                }
+//            }
+//        } else {
+//            targetLocation = targetBlock.getLocation();
+//        }
+//        if (targetLocation == null || !targetLocation.isWorldLoaded() || targetLocation.getWorld() == null) {
+//            HMI18n.send(sender, "command.invalid-target-location");
+//            return;
+//        }
+//
+//        var blockLocationData = BlockLocationData.fromLocation(targetLocation);
+//
+//        hmApi.getShopLocationApi().getLocationData(blockLocationData).ifPresentOrElse(
+//                locationData -> {
+//                    if (!locationData.owner().equals(player.getUniqueId())) {
+//                        HMI18n.send(sender, "command.shop.not-owner");
+//                    } else {
+//                        hmApi.getMarketAPI().commandOffer(player, player.getUniqueId(), item, price);
+//                    }
+//                },
+//                () -> HMI18n.send(sender, "command.invalid-target-location")
+//        );
+        hmApi.getMarketAPI().commandOffer(player, player.getUniqueId(), item, price);
     }
 
     @Override
