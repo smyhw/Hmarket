@@ -19,7 +19,6 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -34,12 +33,6 @@ public class MarketImpl implements IMarketAPI {
 
     public MarketImpl(HMarketAPI marketApi) {
         this.marketApi = marketApi;
-    }
-
-    private final NumberFormat numberFormat = NumberFormat.getInstance();
-
-    {
-        numberFormat.setMaximumFractionDigits(2);
     }
 
     @Override
@@ -221,7 +214,7 @@ public class MarketImpl implements IMarketAPI {
 
                     //send offline (or online if online) message
                     var sold_message_notice1 = HMI18n.format("info.market.sold_notice1", player.getName());
-                    var sold_message_notice2 = HMI18n.format("info.market.sold_notice2", numberFormat.format(paidCost.get()), numberFormat.format(paidTax.get()), getTaxRate(marketId) * 100);
+                    var sold_message_notice2 = HMI18n.format("info.market.sold_notice2", paidCost.get(), paidTax.get(), getTaxRate(marketId) * 100);
 
                     AoMessage.getInstanceOptional().ifPresent(
                             aoMessage -> aoMessage.sendMessageTo(

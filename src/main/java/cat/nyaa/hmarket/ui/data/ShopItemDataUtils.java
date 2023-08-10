@@ -3,10 +3,8 @@ package cat.nyaa.hmarket.ui.data;
 import cat.nyaa.hmarket.HMI18n;
 import cat.nyaa.hmarket.Hmarket;
 import cat.nyaa.hmarket.db.data.ShopItemData;
-import cat.nyaa.hmarket.utils.HMMathUtils;
 import cat.nyaa.nyaacore.utils.ItemStackUtils;
 import com.google.common.collect.Lists;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -31,7 +29,7 @@ public class ShopItemDataUtils {
             if (lore == null) lore = Lists.newArrayList();
             lore.add(HMI18n.format("info.ui.item.owner", ownerName == null ? itemData.owner() : ownerName));
             lore.add(HMI18n.format("info.ui.item.price", itemData.price()));
-            lore.add(HMI18n.format("info.ui.item.tax", api.getMarketAPI().getTaxRate(itemData) * 100.0, HMMathUtils.round((itemData.price() * (1.0 + api.getMarketAPI().getTaxRate(itemData))), 2)));
+            lore.add(HMI18n.format("info.ui.item.tax", itemData.price() * (1.0 + api.getMarketAPI().getTaxRate(itemData)), api.getMarketAPI().getTaxRate(itemData) * 100.0));
             if (itemData.owner().equals(player.getUniqueId())) {
                 lore.add(HMI18n.format("info.ui.item.owner_item_back"));
 

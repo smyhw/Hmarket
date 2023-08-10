@@ -3,9 +3,7 @@ package cat.nyaa.hmarket;
 import cat.nyaa.hmarket.message.AoMessage;
 import cat.nyaa.nyaacore.LanguageRepository;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TranslatableComponent;
-import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -16,7 +14,8 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
+import java.text.DecimalFormat;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -28,6 +27,9 @@ public class HMI18n extends LanguageRepository {
     private static final LegacyComponentSerializer legacyComponentSerializer =
             LegacyComponentSerializer.builder().character('§')
                     .useUnusualXRepeatedCharacterHexFormat().build();
+
+
+    private static final DecimalFormat decimalFormat = new DecimalFormat("0.00");
 
 
     public HMI18n(Hmarket plugin, String language) {
@@ -64,9 +66,20 @@ public class HMI18n extends LanguageRepository {
 //    }
 
     @Contract(pure = true)
-    public static Component format(String key, Object... args) {
+    public static Component format(String key, Object... _args) {
         if (instance == null)
             return legacyComponentSerializer.deserialize("<Not initialized>");
+        var args = Arrays.stream(_args).map(
+                o -> {
+                    if (o instanceof Double) {
+                        return decimalFormat.format(o);
+                    } else if (o instanceof Float) {
+                        return decimalFormat.format(o);
+                    } else {
+                        return o;
+                    }
+                }
+        ).toArray();
         return legacyComponentSerializer.deserialize(instance.getFormatted(key, args));
     }
 
