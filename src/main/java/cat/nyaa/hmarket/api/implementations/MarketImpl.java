@@ -123,7 +123,8 @@ public class MarketImpl implements IMarketAPI {
 
     private void onShopOffer(@NotNull Player player, @NotNull UUID marketId, @NotNull ItemStack items, double price) {
         HMLogUtils.logInfo("Player " + player.getName() + " has offered " + items.getType() + " * " + items.getAmount() + " for " + price + " to market " + marketId);
-        HMI18n.send(player, "info.market.sellfee", getListingFee(marketId));
+        if (getListingFee(marketId) != 0)
+            HMI18n.send(player, "info.market.sellfee", getListingFee(marketId));
         if (marketId.equals(MarketIdUtils.getSystemShopId())) {
             Bukkit.broadcast(HMI18n.format("info.market.sell", player.getName())
                     .append(getComponentOfItem(items)));

@@ -25,6 +25,19 @@ public class HMSignShopCommand extends CommandReceiver {
         super(plugin, _i18n);
     }
 
+    @SubCommand(value = "view", isDefaultCommand = true, permission = "hmarket.my")
+    public void view(CommandSender sender, Arguments args) {
+        if (!(sender instanceof Player player)) {
+            HMI18n.send(sender, "command.only-player-can-do");
+            return;
+        }
+        var hmApi = Hmarket.getAPI();
+        if (hmApi == null) return;
+        Hmarket.getInstance().getViewServer().createViewForPlayer(player, player.getUniqueId(),
+                HMI18n.format("info.ui.title.shop.user", player.getName()));
+        Hmarket.getInstance().getViewServer().openViewForPlayer(player);
+    }
+
     @SubCommand(value = "shops", permission = "hmarket.my")
     public void list(CommandSender sender, Arguments args) {
         if (!(sender instanceof Player player)) {
@@ -127,6 +140,6 @@ public class HMSignShopCommand extends CommandReceiver {
 
     @Override
     public String getHelpPrefix() {
-        return "shop";
+        return "my";
     }
 }

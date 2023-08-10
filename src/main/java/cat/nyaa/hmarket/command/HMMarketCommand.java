@@ -30,8 +30,8 @@ public class HMMarketCommand extends CommandReceiver {
     @SubCommand(value = "my", permission = "hmarket.my")
     public HMSignShopCommand shop;
 
-    @SubCommand(value = "mall", isDefaultCommand = true, permission = "hmarket.mall")
-    public void mall(CommandSender sender, Arguments args) {
+    @SubCommand(value = "view", isDefaultCommand = true, permission = "hmarket.mall")
+    public void view(CommandSender sender, Arguments args) {
         if (!(sender instanceof Player player)) {
             HMI18n.send(sender, "command.only-player-can-do");
             return;
