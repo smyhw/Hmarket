@@ -19,7 +19,7 @@ import java.util.concurrent.CompletableFuture;
 public interface IMarketShopLocation {
     void onSignClick(@NotNull BlockLocationData blockLocationData, Player player, @NotNull PlayerInteractEvent event);
 
-    void onSignChange(@NotNull BlockLocationData fromLocation, @NotNull Player owner, @NotNull List<Component> lines, @NotNull Block block);
+    void onSignChange(@NotNull BlockLocationData fromLocation, @NotNull Player owner, @NotNull String[] lines, @NotNull Block block);
 
     boolean isBlockProtected(@NotNull Block block, @Nullable Player player);
 

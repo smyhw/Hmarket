@@ -8,7 +8,6 @@ import cat.nyaa.hmarket.api.data.BlockLocationData;
 import cat.nyaa.hmarket.db.data.ShopLocationData;
 import cat.nyaa.hmarket.utils.*;
 import com.google.common.collect.Lists;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -96,6 +95,12 @@ public class ShopLocationImpl implements IMarketShopLocation {
     @Override
     public void onSignClick(@NotNull BlockLocationData blockLocationData, Player player, @NotNull PlayerInteractEvent event) {
         if (!cache.containsKey(blockLocationData)) return;
+        if (!(event.getClickedBlock().getState() instanceof Sign sign))
+            return;
+        if (!sign.isWaxed()) {
+            sign.setWaxed(true);
+            sign.update();
+        }
         var shopLocationData = cache.get(blockLocationData);
         event.setCancelled(true);
         var playerName = Bukkit.getOfflinePlayer(shopLocationData.market()).getName();
@@ -105,9 +110,9 @@ public class ShopLocationImpl implements IMarketShopLocation {
     }
 
     @Override
-    public void onSignChange(@NotNull BlockLocationData fromLocation, @NotNull Player owner, @NotNull List<Component> lines, @NotNull Block block) {
-        if (lines.size() < 3) return;
-        if (!lines.get(0).equals(Component.text(SIGN_LINE0))) return;
+    public void onSignChange(@NotNull BlockLocationData fromLocation, @NotNull Player owner, @NotNull String[] lines, @NotNull Block block) {
+        if (lines.length < 3) return;
+        if (!lines[0].equalsIgnoreCase(SIGN_LINE0)) return;
 
         if (cache.containsKey(fromLocation)) {
             // it's normal in mc 1.20
@@ -186,7 +191,7 @@ public class ShopLocationImpl implements IMarketShopLocation {
         );
         for (Block b : nearby) {
             if (b.getState() instanceof Sign signState) {
-                if(signState.getBlockData() instanceof WallHangingSign){
+                if (signState.getBlockData() instanceof WallHangingSign) {
                     return false; // skip check for WallHangingSign
                 }
                 var baseBlock = getSignBaseBlock(signState);

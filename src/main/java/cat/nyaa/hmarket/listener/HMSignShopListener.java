@@ -2,7 +2,10 @@ package cat.nyaa.hmarket.listener;
 
 import cat.nyaa.hmarket.Hmarket;
 import cat.nyaa.hmarket.api.data.BlockLocationData;
+import cat.nyaa.hmarket.api.implementations.ShopLocationImpl;
+import net.kyori.adventure.text.Component;
 import org.bukkit.block.Sign;
+import org.bukkit.block.sign.Side;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -22,8 +25,8 @@ public class HMSignShopListener implements Listener {
         if (shopLocation == null) return;
         var clickedBlock = event.getClickedBlock();
         if (clickedBlock == null) return;
-        if (!(clickedBlock.getState() instanceof Sign signState)) return;//no sign
-        if (!signState.isWaxed()) return;
+        if (!(clickedBlock.getState() instanceof Sign))
+            return;//no sign
         shopLocation.onSignClick(
                 BlockLocationData.fromLocation(event.getClickedBlock().getLocation()),
                 event.getPlayer(),
@@ -39,7 +42,7 @@ public class HMSignShopListener implements Listener {
         shopLocation.onSignChange(
                 BlockLocationData.fromLocation(event.getBlock().getLocation()),
                 event.getPlayer(),
-                event.lines(),
+                event.getLines(),
                 event.getBlock()
         );
     }
