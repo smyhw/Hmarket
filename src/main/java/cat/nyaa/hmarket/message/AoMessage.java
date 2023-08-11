@@ -216,7 +216,7 @@ public class AoMessage {
                 message = ChatComponentUtils.fromLegacyText("unknown message type: " + messageData.msgType());
             }
         }
-        player.sendMessage(message.appendSpace().append(aft));
+        player.sendMessage(message.appendNewline().append(aft));
         return true;
     }
 
