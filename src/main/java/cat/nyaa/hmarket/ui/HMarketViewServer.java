@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -36,7 +37,7 @@ public class HMarketViewServer implements Listener {
         viewMap.put(player.getUniqueId(), new HmarketShopView(player, marketId, title));
     }
 
-    public void destrutor(){
+    public void destrutor() {
         viewMap.values().forEach(t -> t.getUi().close());
         viewMap.clear();
         resetTask.cancel();
@@ -44,8 +45,11 @@ public class HMarketViewServer implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getClickedInventory() == null ||
-                !viewMap.containsKey(event.getWhoClicked().getUniqueId())) return;
+        if (event.getClickedInventory() == null
+                || !viewMap.containsKey(event.getWhoClicked().getUniqueId()))
+            return;
+        if (event.getInventory() != viewMap.get(event.getWhoClicked().getUniqueId()).getUi())
+            return;
         if (event.getClickedInventory() == viewMap.get(event.getWhoClicked().getUniqueId()).getUi()) {
             event.setCancelled(true);
             var item = event.getCurrentItem();
@@ -55,14 +59,29 @@ public class HMarketViewServer implements Listener {
             viewMap.get(event.getWhoClicked().getUniqueId()).onClick((Player) event.getWhoClicked(), event.getAction(), item, event.getSlot());
             interactedPlayers.add(event.getWhoClicked().getUniqueId());
         }
+        if (event.getClickedInventory() == event.getWhoClicked().getInventory()) {
+            if (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
+                event.setCancelled(true);
+            }
+        }
     }
 
     @EventHandler
     public void onInventoryDrag(InventoryDragEvent event) {
         if (viewMap.containsKey(event.getWhoClicked().getUniqueId())
                 && event.getInventory() == viewMap.get(event.getWhoClicked().getUniqueId()).getUi())
-            event.setCancelled(true);
+            if (event.getNewItems().keySet().stream().anyMatch(t -> t < 54))
+                event.setCancelled(true);
     }
+
+//    @EventHandler
+//    public void onInventoryMove(InventoryMoveItemEvent event) {
+//        if (event.getSource().getHolder() instanceof Player player) {
+//            if (event.getDestination() == viewMap.get(player.getUniqueId()).getUi())
+//                event.setCancelled(true);
+//        }
+//
+//    }
 
     @EventHandler
     public void onCloseInventory(InventoryCloseEvent event) {
