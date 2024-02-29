@@ -109,10 +109,6 @@ public class HmarketShopView {
         reloadShopItems(viewShopID);
     }
 
-    private Component renderPageTitle() {
-        return HMI18n.format("info.ui.title.page", currentPage, getMaximumPage());
-    }
-
     private void reloadShopItems(UUID shopUniqueID) {
         resetUI();
         Bukkit.getScheduler().runTaskAsynchronously(Hmarket.getInstance(), () -> {
@@ -136,7 +132,7 @@ public class HmarketShopView {
     }
 
     private int getMaximumPage() {
-        return items.size() / 45 + 1;
+        return (items.size() - 1) / 45 + 1;
     }
 
     private boolean hasPrevPage() {
