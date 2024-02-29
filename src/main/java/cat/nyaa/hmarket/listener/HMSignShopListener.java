@@ -2,10 +2,7 @@ package cat.nyaa.hmarket.listener;
 
 import cat.nyaa.hmarket.Hmarket;
 import cat.nyaa.hmarket.api.data.BlockLocationData;
-import cat.nyaa.hmarket.api.implementations.ShopLocationImpl;
-import net.kyori.adventure.text.Component;
 import org.bukkit.block.Sign;
-import org.bukkit.block.sign.Side;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
