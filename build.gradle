@@ -81,7 +81,7 @@ javadoc {
         links 'https://guava.dev/releases/21.0/api/docs/'
         links 'https://ci.md-5.net/job/BungeeCord/ws/chat/target/apidocs/'
 
-        locale 'en_US'
+        locale 'zh_CN'
         encoding 'UTF-8'
         addBooleanOption('keywords', true)
         addStringOption('Xdoclint:none', '-quiet')

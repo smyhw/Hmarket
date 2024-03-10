@@ -1,0 +1,70 @@
+command:
+  database_error: '数据库错误'
+  shop:
+    list:
+      info: "商店: {{type}}, 位置 [x:{{x}},y:{{y}},z:{{z}},世界:{{world}}] ,所有者:{{owner}} ,market:{{market}}"
+      empty: "没有找到商店"
+    not-owner: "汝不是这枚商店的所有者!"
+  invalid-target-location: "目标位置无效!"
+  unknown-error: "未知错误"
+  task-failed: "获取任务状态失败!"
+  offer:
+    success: "物品上架成功: %s"
+  not-enough-space: "背包空间不够啦!"
+  not-enough-money: "汝没有足够的货币!"
+  only-player-can-do: "只能以玩家身份操作!"
+  invalid-price: "这个价格无效!"
+  invalid-item-in-hand: "汝手里的这个物品无效!"
+  not-enough-item-in-hand: "汝手里的物品数量不足!"
+info:
+  sign:
+    not-owner: "这不是汝的商店!"
+    nearby-protected: "这个方块上已经有一枚牌子商店了，需要先移除它!"
+    database_error: "数据库错误!"
+    destroyed: "牌子被摧毁!"
+    create_failed: "创建失败,可能已经达到汝的商店上限!"
+    created: "商店已创建!"
+    occupied: '存储空间已经被占用!'
+  market:
+    sold_notice1: "玩家 %s 从购买了一件汝上架的物品:"
+    sold_notice2: "汝购买了 %s, 税款: %s (%s%%)."
+    sellfee: "已支付货币: %s"
+    sell: "玩家 %s 上架了一份物品:"
+  ui:
+    title:
+      shop:
+        system: "&8全域&7商&f店"
+        user: "&8%s&7的 &f个人商店"
+    element:
+        loading: "&f加载中喵~"
+        loading_description: "&7请稍候..."
+        refresh: "&f刷新"
+        refresh_description: "&7重新获取商品列表"
+        next_page: "&f下一页"
+        previous_page: "&f上一页"
+        not_available: "&f不可用!"
+        not_available_description: "&7这个物品不再可用!"
+        empty_store: "&f空空如也"
+        empty_store_description: "&7这儿什么也没有喵~"
+        pending: "&f请稍候..."
+        pending_description: "&7正在处理交易..."
+        purchased: "&f已购买!"
+        purchased_description: "&7汝已经购买了这个物品!"
+        withdrawn: "&f已撤下!"
+        withdrawn_description: "&7汝已经撤下了这个物品!"
+        action_needed: "&f错误!"
+        action_needed_description: "&7购买失败>_<，原因是: %s"
+    item:
+      buy_item: "点击购买!"
+      tax: "含税价格: %s, 包含税款: %s"
+      price: '价格: %s'
+      owner: "发布者: %s"
+      owner_item_back: "点击这个来拿回自己的物品"
+    market:
+      player_owns_item: "&7汝不能购买自己上架的商品!"
+      item_not_found: "&7找不到物品 %s "
+      buy_failed: "&7购买失败qwq"
+      buy_success: "&7购买成功喵!"
+      out_of_stock: "&7售罄"
+      not_enough_money: "&7汝手头的货币不够购买这个物品"
+      internal_error_occurred: "&7内部错误，请报告管理员qwq : %s"
