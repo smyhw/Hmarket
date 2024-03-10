@@ -29,6 +29,7 @@ repositories {
     maven { url 'https://repo.papermc.io/repository/maven-public/' }
     maven { url "https://repo.dmulloy2.net/repository/public/" }
     maven { name 'NyaaCat'; url 'https://ci.nyaacat.com/maven/' }
+    maven { url 'https://jitpack.io' }
 }
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(17))
@@ -36,10 +37,11 @@ java {
     withSourcesJar()
 }
 dependencies {
+    compileOnly "com.github.MilkBowl:VaultAPI:1.7"
     compileOnly("io.papermc.paper:paper-api:$minecraftVersion-R0.1-SNAPSHOT")
     // other nyaa plugins
     compileOnly('cat.nyaa:nyaacore:9.3.4-1.20.4')
-    compileOnly('cat.nyaa:ecore:0.3.3')
+//    compileOnly('cat.nyaa:ecore:0.3.3')
     compileOnly 'org.jetbrains:annotations:23.0.0'
     compileOnly 'com.comphenix.protocol:ProtocolLib:5.0.0'
     implementation "net.kyori:adventure-api:4.14.0"
