@@ -56,7 +56,7 @@ info:
         action_needed_description: "&7购买失败>_<，原因是: %s"
     item:
       buy_item: "点击购买!"
-      tax: "含税价格: %s, 包含税款: %s"
+      tax: "含税价格: %s, 税率: %s%%"
       price: '价格: %s'
       owner: "发布者: %s"
       owner_item_back: "点击这个来拿回自己的物品"
