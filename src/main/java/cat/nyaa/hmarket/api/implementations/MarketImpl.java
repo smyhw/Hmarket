@@ -45,13 +45,13 @@ public class MarketImpl implements IMarketAPI {
         if (!InventoryUtils.hasItem(player, items, items.getAmount())) {
             return CompletableFuture.completedFuture(MarketOfferResult.fail(MarketOfferResult.MarketOfferStatus.NOT_ENOUGH_ITEMS));
         }
-        if (marketApi.getEconomyCore().getBalance(Bukkit.getPlayer(ownerId)) < fee) {
+        if (marketApi.getEconomyCore().getBalance(Bukkit.getOfflinePlayer(ownerId)) < fee) {
             return CompletableFuture.completedFuture(MarketOfferResult.fail(MarketOfferResult.MarketOfferStatus.NOT_ENOUGH_MONEY));
         }
         if (!InventoryUtils.removeItem(player, items, items.getAmount())) {
             return CompletableFuture.completedFuture(MarketOfferResult.fail(MarketOfferResult.MarketOfferStatus.NOT_ENOUGH_ITEMS));
         }
-        if (!marketApi.getEconomyCore().withdrawPlayer(Bukkit.getPlayer(ownerId), fee).transactionSuccess()) {
+        if (!marketApi.getEconomyCore().withdrawPlayer(Bukkit.getOfflinePlayer(ownerId), fee).transactionSuccess()) {
             return CompletableFuture.completedFuture(MarketOfferResult.fail(MarketOfferResult.MarketOfferStatus.NOT_ENOUGH_MONEY));
         }
         var limit = marketId.equals(MarketIdUtils.getSystemShopId()) ? marketApi.getConfig().limitSlotsMarket : marketApi.getConfig().limitSlotsSignshopSell;
@@ -71,7 +71,7 @@ public class MarketImpl implements IMarketAPI {
 //                        marketApi.getEconomyCore().depositSystemVault(fee);
                     } else {
                         HMInventoryUtils.giveOrDropItem(player, items);
-                        marketApi.getEconomyCore().depositPlayer(Bukkit.getPlayer(ownerId), fee);
+                        marketApi.getEconomyCore().depositPlayer(Bukkit.getOfflinePlayer(ownerId), fee);
                     }
                     return result;
                 }));
@@ -156,10 +156,10 @@ public class MarketImpl implements IMarketAPI {
             return Pair.of(TaskUtils.async.getSyncDefault(() -> {
                 var cost = shopItemData.price() * amount;
                 var tax = cost * getTaxRate(shopItemData);
-                if (marketApi.getEconomyCore().getBalance(Bukkit.getPlayer(playerId)) < cost + tax) {
+                if (marketApi.getEconomyCore().getBalance(Bukkit.getOfflinePlayer(playerId)) < cost + tax) {
                     return MarketBuyResult.fail(MarketBuyResult.MarketBuyStatus.NOT_ENOUGH_MONEY);
                 }
-                if (!marketApi.getEconomyCore().withdrawPlayer(Bukkit.getPlayer(playerId), cost + tax).transactionSuccess()) {
+                if (!marketApi.getEconomyCore().withdrawPlayer(Bukkit.getOfflinePlayer(playerId), cost + tax).transactionSuccess()) {
                     return MarketBuyResult.fail(MarketBuyResult.MarketBuyStatus.TRANSACTION_ERROR);
                 }
                 paidCost.set(cost);
@@ -189,7 +189,7 @@ public class MarketImpl implements IMarketAPI {
             return marketApi.getDatabaseManager().buyItemFromMarket(marketId, itemId, amount, shopItemData.price(), shopItemData.itemNbt()).thenApplyAsync((b) -> {
                 if (b.isEmpty() || !b.get()) {
                     if (paidCost.get() > 0 || paidTax.get() > 0) {
-                        if (!TaskUtils.async.getSyncDefault(() -> marketApi.getEconomyCore().depositPlayer(Bukkit.getPlayer(playerId), paidCost.get() + paidTax.get()).transactionSuccess(), false)) {
+                        if (!TaskUtils.async.getSyncDefault(() -> marketApi.getEconomyCore().depositPlayer(Bukkit.getOfflinePlayer(playerId), paidCost.get() + paidTax.get()).transactionSuccess(), false)) {
                             HMLogUtils.logWarning("Transaction Failed:Player " + playerId + " refund failed");
                             HMLogUtils.logWarning("cosy: " + paidCost.get() + ",tax:" + paidCost.get());
                         }
@@ -206,7 +206,7 @@ public class MarketImpl implements IMarketAPI {
 //                        }
 //                    }
                     if (paidCost.get() > 0) {
-                        if (!marketApi.getEconomyCore().depositPlayer(Bukkit.getPlayer(shopItemData.owner()), paidCost.get()).transactionSuccess()) {
+                        if (!marketApi.getEconomyCore().depositPlayer(Bukkit.getOfflinePlayer(shopItemData.owner()), paidCost.get()).transactionSuccess()) {
                             HMLogUtils.logWarning("Transaction Failed:Failed to deposit player " + shopItemData.owner());
                             HMLogUtils.logWarning("cost: " + (paidCost.get()));
                             HMLogUtils.logWarning("from: " + playerId);
@@ -443,8 +443,8 @@ public class MarketImpl implements IMarketAPI {
                     }
                     var billableDays = nowDays - lastDays;
                     var fee = (base + rate * shopItemData.price()) * billableDays;
-                    var balance = marketApi.getEconomyCore().getBalance(Bukkit.getPlayer(shopItemData.owner()));
-                    if (marketApi.getEconomyCore().withdrawPlayer(Bukkit.getPlayer(shopItemData.owner()), fee).transactionSuccess()) {
+                    var balance = marketApi.getEconomyCore().getBalance(Bukkit.getOfflinePlayer(shopItemData.owner()));
+                    if (marketApi.getEconomyCore().withdrawPlayer(Bukkit.getOfflinePlayer(shopItemData.owner()), fee).transactionSuccess()) {
 //                        marketApi.getEconomyCore().depositSystemVault(fee);
                         HMLogUtils.logInfo("[item update][" + TimeUtils.getUnixTimeStampNow() + "] " + shopItemData.owner() + " paid " + fee + " for storage fee. shop id:" + shopItemData.market());
                         return true;
