@@ -27,3 +27,53 @@
 * 原版依赖`nyaaecore`，这枝fork使其改为依赖`Vault`
 * 税款直接扔虚空，没有系统账户来接收它们
 * 中文语言文件；这不是喵窝的原版文本，那并不公开
+
+# 配置文件
+注：目前为止，以下配置项目确保有效  
+剩余项目可能并未实现*（比如什么求购，拍卖啥的）*
+```
+language: en_US
+#交易达成时收取交易税(买家付)(百分比)
+tax:
+  market: 10.0
+  signshop: 5.0
+#上架时收取的一次性上架费(卖家付)(固定费用)
+fee:
+  market: 100.0
+  signshop: 0.0
+#仓储费，每天向所有上架物品的卖家收取(百分比)
+#每天的仓储费 = 基础费用+物品单价*附加费用
+storage:
+  market:
+    #免费天数(注意：-1在这里没有特殊效果，和0天一样！)
+    #瓜佬啊，你这句<freedays: -1 # unlimited>给咱干迷糊了好久qwq
+    freedays: -1
+    #基础费用(固定值)
+    base: 0.0
+    #附加费用(按单个物品价格的百分比)
+    percent: 0
+  signshop:
+    freedays: -1
+    base: 0.0
+    percent: 0.0
+#槽位限制(最多上架多少种物品)
+limits:
+  slots:
+    market: 5
+    signshop-sell: 128
+    signshop-buy: 256
+  signs: 3
+  frames: 12
+timers:
+  auction:
+    duration: 2400
+    interval: 60
+  request:
+    duration: 2400
+    interval: 60
+sign:
+  create:
+    max-lock-time-ms: 10000
+
+
+```
