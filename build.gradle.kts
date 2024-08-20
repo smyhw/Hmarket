@@ -7,7 +7,7 @@ plugins {
 val paperApiName = "1.21.1-R0.1-SNAPSHOT"
 
 group = "cat.nyaa"
-version = "0.9.1"
+version = "0.10.0"
 
 tasks.runServer {
     minecraftVersion("1.21.1")
