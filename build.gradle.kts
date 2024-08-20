@@ -47,7 +47,7 @@ tasks.processResources {
 }
 
 tasks.javadoc {
-    val javadocPath = System.getenv("JAVADOC_DIR");
+    val javadocPath = System.getenv("JAVADOCS_DIR")
     if (javadocPath != null) setDestinationDir(file("${javadocPath}/${rootProject.name.lowercase()}-${project.version}"))
 
     (options as StandardJavadocDocletOptions).apply {
