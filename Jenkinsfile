@@ -6,7 +6,7 @@ pipeline {
                 jdk "jdk21"
             }
             steps {
-                sh './gradlew build'
+                sh './gradlew publish'
                 sh './gradlew javadoc'
             }
         }

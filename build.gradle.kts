@@ -35,32 +35,54 @@ dependencies {
     compileOnly("com.comphenix.protocol:ProtocolLib:5.0.0")
 }
 
-tasks.compileJava {
-    options.compilerArgs.add("-Xlint:deprecation")
-    options.encoding = "UTF-8"
-}
-
-tasks.processResources {
-    filesMatching("**/plugin.yml") {
-        expand("version" to project.version)
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+            groupId = group.toString()
+            artifactId = rootProject.name.lowercase()
+            version = project.version.toString()
+        }
+    }
+    repositories {
+        maven {
+            name = "NyaaCatCILocal"
+            //local maven repository
+            url = uri("file://${System.getenv("MAVEN_DIR")}")
+        }
     }
 }
 
-tasks.javadoc {
-    val javadocPath = System.getenv("JAVADOCS_DIR")
-    if (javadocPath != null) setDestinationDir(file("${javadocPath}/${rootProject.name.lowercase()}-${project.version}"))
+tasks {
+    compileJava {
+        options.compilerArgs.add("-Xlint:deprecation")
+        options.encoding = "UTF-8"
+    }
 
-    (options as StandardJavadocDocletOptions).apply {
-        links("https://docs.oracle.com/en/java/javase/17/docs/api/")
-        links("https://hub.spigotmc.org/javadocs/spigot/")
-        links("https://guava.dev/releases/21.0/api/docs/")
-        links("https://ci.md-5.net/job/BungeeCord/ws/chat/target/apidocs/")
+    processResources {
+        filesMatching("**/plugin.yml") {
+            expand("version" to project.version)
+        }
+    }
 
-        locale = "en_US"
-        encoding = "UTF-8"
-        addBooleanOption("keywords", true)
-        addStringOption("Xdoclint:none", "-quiet")
-        addBooleanOption("html5", true)
-        windowTitle = "${rootProject.name} Javadoc"
+    javadoc {
+        val javadocPath = System.getenv("JAVADOCS_DIR")
+        if (javadocPath != null) setDestinationDir(file("${javadocPath}/${rootProject.name.lowercase()}-${project.version}"))
+
+        (options as StandardJavadocDocletOptions).apply {
+            links("https://docs.oracle.com/en/java/javase/17/docs/api/")
+            links("https://hub.spigotmc.org/javadocs/spigot/")
+            links("https://guava.dev/releases/21.0/api/docs/")
+            links("https://ci.md-5.net/job/BungeeCord/ws/chat/target/apidocs/")
+
+            locale = "en_US"
+            encoding = "UTF-8"
+            addBooleanOption("keywords", true)
+            addStringOption("Xdoclint:none", "-quiet")
+            addBooleanOption("html5", true)
+            windowTitle = "${rootProject.name} Javadoc"
+        }
     }
 }
+
+
