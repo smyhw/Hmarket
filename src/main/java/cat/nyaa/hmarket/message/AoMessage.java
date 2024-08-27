@@ -1,10 +1,12 @@
 package cat.nyaa.hmarket.message;
 
+import cat.nyaa.hmarket.HMI18n;
 import cat.nyaa.hmarket.message.data.AoMessageData;
 import cat.nyaa.hmarket.utils.ChatComponentUtils;
 import cat.nyaa.hmarket.utils.DBFunctionUtils;
 import cat.nyaa.hmarket.utils.DatabaseUtils;
 import cat.nyaa.hmarket.utils.TaskUtils;
+import cat.nyaa.ukit.api.UKitAPI;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 import net.kyori.adventure.text.Component;
@@ -39,11 +41,13 @@ public class AoMessage {
     private final SimpleDateFormat simpleDateFormat;
     private final MessageListener listener;
     private Connection jdbcConnection;
+    private boolean ukitMessageEnabled = false;
 
     public AoMessage(JavaPlugin plugin) {
         if (instance != null) {
             throw new IllegalStateException("AoMessage already exists");
         }
+        ukitMessageEnabled = Bukkit.getPluginManager().getPlugin("Ukit") != null;
         this.plugin = plugin;
         initDB();
         this.simpleDateFormat = new SimpleDateFormat("'['yy/MM/dd HH:mm Z']'");
@@ -87,7 +91,17 @@ public class AoMessage {
         var player = Bukkit.getPlayer(playerId);
         for (Component message : messages) {
             if (player == null || !player.isOnline()) {
-                this.newOfflineMessage(playerId, JSON, ChatComponentUtils.toJson(message));
+                if (ukitMessageEnabled) {
+                    Bukkit.getAsyncScheduler().runNow(plugin, (task) -> {
+                        try {
+                            UKitAPI.getAPIInstance().createLoginPush(playerId, message, HMI18n.format("info.message.sender_name"));
+                        } catch (SQLException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+                } else {
+                    this.newOfflineMessage(playerId, JSON, ChatComponentUtils.toJson(message));
+                }
             } else {
                 player.sendMessage(message);
             }
