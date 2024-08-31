@@ -1,5 +1,6 @@
 package cat.nyaa.hmarket.ui;
 
+import cat.nyaa.hmarket.HMI18n;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -41,6 +42,16 @@ public class HMarketViewServer implements Listener {
         viewMap.values().forEach(t -> t.getUi().close());
         viewMap.clear();
         resetTask.cancel();
+    }
+
+    public Component getUserShopTitle(UUID playerUniqueID) {
+        var playerName = Bukkit.getOfflinePlayer(playerUniqueID);
+        return HMI18n.format("info.ui.title.shop.user", playerName);
+    }
+
+    public Component getSystemShopTitle(UUID playerUniqueID) {
+        var playerName = Bukkit.getOfflinePlayer(playerUniqueID);
+        return HMI18n.format("info.ui.title.shop.system");
     }
 
     @EventHandler

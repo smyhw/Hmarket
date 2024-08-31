@@ -18,6 +18,8 @@ command:
   invalid-item-in-hand: "You can't use that item in your hand!"
   not-enough-item-in-hand: "You don't have enough item in hand."
 info:
+  message:
+    sender_name: "Hmarket"
   sign:
     not-owner: "This is not your shop"
     nearby-protected: "There is a sign shop on this block, please remove it first"
