@@ -4,13 +4,13 @@ plugins {
     id("xyz.jpenilla.run-paper") version "2.3.0" // Adds runServer and runMojangMappedServer tasks for testing
 }
 
-val paperApiName = "1.21.1-R0.1-SNAPSHOT"
+val paperApiName = "1.20.6-R0.1-SNAPSHOT"
 
 group = "cat.nyaa"
 version = "0.10.1"
 
 tasks.runServer {
-    minecraftVersion("1.21.1")
+    minecraftVersion("1.20.6")
 }
 
 repositories {
@@ -18,6 +18,7 @@ repositories {
     maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://repo.dmulloy2.net/repository/public/")
     maven("https://ci.nyaacat.com/maven/")
+    maven("https://jitpack.io")
 }
 
 java {
@@ -30,7 +31,8 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:$paperApiName")
     // other nyaa plugins
     compileOnly("cat.nyaa:nyaacore:9.4")
-    compileOnly("cat.nyaa:ecore:0.3.4")
+    compileOnly("com.github.MilkBowl:VaultAPI:1.7")
+//    compileOnly("cat.nyaa:ecore:0.3.4")
     compileOnly("cat.nyaa:ukit:1.7")
     compileOnly("org.jetbrains:annotations:23.0.0")
     compileOnly("com.comphenix.protocol:ProtocolLib:5.0.0")
