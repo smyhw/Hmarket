@@ -1,20 +1,20 @@
 package cat.nyaa.hmarket.api;
 
-import cat.nyaa.ecore.EconomyCore;
 import cat.nyaa.hmarket.api.implementations.MarketImpl;
 import cat.nyaa.hmarket.api.implementations.ShopLocationImpl;
 import cat.nyaa.hmarket.config.HMConfig;
 import cat.nyaa.hmarket.db.HmarketDatabaseManager;
+import net.milkbowl.vault.economy.Economy;
 
 public class HMarketAPI {
 
     private final HmarketDatabaseManager databaseManager;
-    private final EconomyCore economyCore;
+    private final Economy economyCore;
     private final HMConfig config;
     private final MarketImpl marketAPI;
     private final IMarketShopLocation shopLocationApi;
 
-    public HMarketAPI(HmarketDatabaseManager databaseManager, EconomyCore economyCore, HMConfig config) {
+    public HMarketAPI(HmarketDatabaseManager databaseManager, Economy economyCore, HMConfig config) {
         this.databaseManager = databaseManager;
         this.economyCore = economyCore;
         this.config = config;
@@ -22,7 +22,7 @@ public class HMarketAPI {
         this.shopLocationApi = new ShopLocationImpl(this);
     }
 
-    public EconomyCore getEconomyCore() {
+    public Economy getEconomyCore() {
         return economyCore;
     }
 

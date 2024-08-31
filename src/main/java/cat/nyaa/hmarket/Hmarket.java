@@ -1,6 +1,5 @@
 package cat.nyaa.hmarket;
 
-import cat.nyaa.ecore.EconomyCore;
 import cat.nyaa.hmarket.api.HMarketAPI;
 import cat.nyaa.hmarket.command.CommandManager;
 import cat.nyaa.hmarket.config.HMConfig;
@@ -10,15 +9,18 @@ import cat.nyaa.hmarket.message.AoMessage;
 import cat.nyaa.hmarket.task.HMTaskManager;
 import cat.nyaa.hmarket.ui.HMarketViewServer;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
+import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.EconomyResponse;
 
 public final class Hmarket extends JavaPlugin {
 
     private static Hmarket instance;
     @Nullable
-    public EconomyCore economyProvider;
+    public Economy economyProvider = null;
     @Nullable
     private HmarketDatabaseManager databaseManager;
     private HMConfig hmConfig;
@@ -77,10 +79,16 @@ public final class Hmarket extends JavaPlugin {
     }
 
     private boolean setupEconomy() {
-        var rsp = Bukkit.getServicesManager().getRegistration(EconomyCore.class);
-        if (rsp != null) {
-            economyProvider = rsp.getProvider();
+        if (getServer().getPluginManager().getPlugin("Vault") == null) {
+            System.out.println("找不到Vault！");
+            return false;
         }
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            System.out.println("挂载Vault失败！");
+            return false;
+        }
+        economyProvider = rsp.getProvider();
         return economyProvider != null;
     }
 
